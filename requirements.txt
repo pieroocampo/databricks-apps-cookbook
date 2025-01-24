@@ -1,0 +1,5 @@
+databricks-connect==15.4.4
+databricks-sdk==0.41.0
+databricks-sql-connector==3.7.1
+pandas==2.2.3
+streamlit==1.41.1
