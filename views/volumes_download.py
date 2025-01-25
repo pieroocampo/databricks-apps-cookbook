@@ -15,7 +15,7 @@ tab1, tab2, tab3 = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"
 
 with tab1:
     download_file_path = st.text_input(
-        label="Specify a path to a file in a Unity Catalog volume",
+        label="Specify a path to a file in a Unity Catalog volume:",
         placeholder="/Volumes/main/marketing/raw_files/leads.csv",
     )
 
@@ -27,7 +27,7 @@ with tab1:
 
                 file_name = os.path.basename(download_file_path)
 
-                st.success(f"File '{file_name}' downloaded successfully.")
+                st.success(f"File '{file_name}' downloaded successfully", icon="✅")
                 st.download_button(
                     label="Download file",
                     data=file_data,

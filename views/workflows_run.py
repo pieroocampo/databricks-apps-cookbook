@@ -29,13 +29,13 @@ if "workflow_trigger_success" not in st.session_state:
 
 with tab1:
     job_id = st.text_input(
-        label="Specify the job ID",
+        label="Specify job id:",
         placeholder="921773893211960",
         help="You can find the job ID under job details after opening a job in the UI.",
     )
 
     parameters_input = st.text_area(
-        label="Specify job parameters in JSON format",
+        label="Specify job parameters as JSON:",
         placeholder='{"param1": "value1", "param2": "value2"}',
     )
 
@@ -66,13 +66,13 @@ with tab2:
     w = WorkspaceClient()
 
     job_id = st.text_input(
-        label="Specify the job ID",
+        label="Specify job id:",
         placeholder="921773893211960",
         help="You can find the job ID under job details after opening a job in the UI.",
     )
 
     parameters_input = st.text_area(
-        label="Specify job parameters in JSON format",
+        label="Specify job parameters as JSON:",
         placeholder='{"param1": "value1", "param2": "value2"}',
     )
 

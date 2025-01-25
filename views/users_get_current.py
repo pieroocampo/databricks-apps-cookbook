@@ -41,9 +41,9 @@ with tab_b:
     st.info(
         """
         #### Other frameworks
-        * **Dash**: use [`request.headers`](https://flask.palletsprojects.com/en/stable/api/#flask.Request.headers) from `flask` Python library.
-        * **Flask**: use [`request.headers`](https://flask.palletsprojects.com/en/stable/api/#flask.Request.headers) from `flask` Python library.
-        """
+        * **Dash, Flask**: use [`request.headers`](https://flask.palletsprojects.com/en/stable/api/#flask.Request.headers) from `flask` Python library.
+        """,
+        icon="ℹ️",
     )
 
 with tab_c:

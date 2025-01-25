@@ -3,15 +3,17 @@ from databricks.sdk import WorkspaceClient
 
 w = WorkspaceClient()
 
-openai_client = w.serving_endpoints.get_open_ai_client()
-
-EMBEDDING_MODEL_ENDPOINT_NAME = "databricks-gte-large-en"
-
-st.header(body="Machine Learning", divider=True)
+st.header(body="AI / ML", divider=True)
 st.subheader("Run vector search")
+st.write(
+    "This recipe uses vector search for fast and accurate retrieval of the most similar items or content."
+)
 
 tab1, tab2, tab3 = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
 
+openai_client = w.serving_endpoints.get_open_ai_client()
+
+EMBEDDING_MODEL_ENDPOINT_NAME = "databricks-gte-large-en"
 
 def get_embeddings(text):
     try:
@@ -43,28 +45,19 @@ def run_vector_search(prompt: str) -> str:
 
 
 with tab1:
-    import streamlit as st
-    from databricks.sdk import WorkspaceClient
-
-    w = WorkspaceClient()
-
-    openai_client = w.serving_endpoints.get_open_ai_client()
-
-    EMBEDDING_MODEL_ENDPOINT_NAME = "databricks-gte-large-en"
-
     index_name = st.text_input(
-        label="Vector search index",
+        label="Vector search index:",
         placeholder="catalog.schema.index-name",
     )
 
     columns = st.text_input(
-        label="Columns to retrieve (comma-separated)",
+        label="Columns to retrieve (comma-separated):",
         placeholder="url, name",
         help="Enter one or more column names present in the vector search index, separated by commas. E.g. id, text, url.",
     )
 
     text_input = st.text_input(
-        label="Enter your search query",
+        label="Your query:",
         placeholder="What is Databricks?",
         key="search_query_key",
     )
@@ -117,18 +110,18 @@ with tab2:
 
 
     index_name = st.text_input(
-        label="Vector search index",
+        label="Unity Catalog Vector search index:",
         placeholder="catalog.schema.index-name",
     )
 
     columns = st.text_input(
-        label="Columns to retrieve (comma-separated)",
+        label="Columns to retrieve (comma-separated):",
         placeholder="url, name",
         help="Enter one or more column names present in the vector search index, separated by commas. E.g. id, text, url.",
     )
 
     text_input = st.text_input(
-        label="Enter your search query",
+        label="Enter your search query:",
         placeholder="What is Databricks?",
         key="search_query_key",
     )
@@ -145,15 +138,15 @@ with tab3:
     with col1:
         st.markdown("""
                     **Permissions (app service principal)**
-                    * `USE CATALOG` on the catalog that contains the vector search index
-                    * `USE SCHEMA` on the schema that contains the vector search index
-                    * `SELECT` on the vector search index
+                    * `USE CATALOG` on the Catalog that contains the Vector Search index
+                    * `USE SCHEMA` on the Schema that contains the Vector Search index
+                    * `SELECT` on the Vector Search index
                     """)
     with col2:
         st.markdown("""
                     **Databricks resources**
-                    * Vector search endpoint
-                    * Vector search index
+                    * Vector Search endpoint
+                    * Vector Search index
                     """)
     with col3:
         st.markdown("""

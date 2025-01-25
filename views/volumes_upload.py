@@ -4,14 +4,14 @@ import streamlit as st
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import SecurableType
 
-databricks_host = os.getenv("DATABRICKS_HOST")
+databricks_host = os.getenv("DATABRICKS_HOST") or os.getenv("DATABRICKS_HOSTNAME")
 w = WorkspaceClient()
 
 st.header(body="Volumes", divider=True)
 st.subheader("Upload a file")
 
 st.write(
-    "This recipe uploads a file to a [Unity Catalog volume](https://docs.databricks.com/en/volumes/index.html)."
+    "This recipe uploads a file to a [Unity Catalog Volume](https://docs.databricks.com/en/volumes/index.html)."
 )
 
 tab1, tab2, tab3 = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
@@ -45,11 +45,11 @@ if "volume_check_success" not in st.session_state:
 
 with tab1:
     upload_volume_path = st.text_input(
-        label="Specify a three-level Unity Catalog volume name (catalog.schema.volume_name)",
+        label="Specify a Unity Catalog Volume name:",
         placeholder="main.marketing.raw_files",
     )
 
-    if st.button(label="Check volume and permissions", icon=":material/lock_reset:"):
+    if st.button(label="Check Volume and permissions", icon=":material/lock_reset:"):
         permission_result = check_upload_permissions(upload_volume_path.strip())
         if permission_result == "Volume and permissions validated":
             st.session_state.volume_check_success = True
@@ -65,7 +65,7 @@ with tab1:
             f"Upload file to {upload_volume_path}", icon=":material/upload_file:"
         ):
             if not upload_volume_path.strip():
-                st.warning("Please specify a valid volume path.", icon="⚠️")
+                st.warning("Please specify a valid Volume path.", icon="⚠️")
             elif not uploaded_file:
                 st.warning("Please pick a file to upload.", icon="⚠️")
             else:

@@ -17,7 +17,7 @@ if "workflow_check_success" not in st.session_state:
 
 with tab1:
     task_run_id = st.text_input(
-        label="Specify a task run ID",
+        label="Specify a task run ID:",
         placeholder="293894477334278",
     )
 

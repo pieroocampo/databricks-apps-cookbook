@@ -8,12 +8,12 @@ from databricks.sdk.core import Config, oauth_service_principal
 st.header(body="Tables", divider=True)
 st.subheader("Edit a table")
 st.write(
-    "Use this recipe to read, edit, and write back data stored in a Unity Catalog table "
-    "using the [Databricks SQL Connector for Python]"
+    "Use this recipe to read, edit, and write back data stored in a small Unity Catalog table "
+    "with [Databricks SQL Connector]"
     "(https://docs.databricks.com/en/dev-tools/python-sql-connector.html)."
 )
 
-server_hostname = os.getenv("DATABRICKS_HOST")
+server_hostname = os.getenv("DATABRICKS_HOST") or os.getenv("DATABRICKS_HOSTNAME")
 client_id = os.getenv("DATABRICKS_CLIENT_ID")
 client_secret = os.getenv("DATABRICKS_CLIENT_SECRET")
 
@@ -27,29 +27,25 @@ def credential_provider():
     return oauth_service_principal(config)
 
 
-def read_table(table_name: str, http_path: str) -> pd.DataFrame:
-    info = st.empty()
+def read_table(table_name: str, http_path: str, **connection_details) -> pd.DataFrame:
     with sql.connect(
         server_hostname=server_hostname,
         http_path=http_path,
-        credentials_provider=credential_provider,
+        **connection_details,
     ) as conn:
         with conn.cursor() as cursor:
             query = f"SELECT * FROM {table_name}"
-            with info:
-                st.info("Calling Databricks SQL...")
             cursor.execute(query)
-            df = pd.DataFrame(cursor.fetchall())
-            info.empty()
-    return df
+            columns = [desc[0] for desc in cursor.description]
+            return pd.DataFrame(cursor.fetchall(), columns=columns)
 
 
-def insert_overwrite_table(table_name: str, df: pd.DataFrame, http_path: str):
+def insert_overwrite_table(table_name: str, df: pd.DataFrame, http_path: str, **connection_details):
     progress = st.empty()
     with sql.connect(
         server_hostname=server_hostname,
         http_path=http_path,
-        credentials_provider=credential_provider,
+        **connection_details,
     ) as conn:
         with conn.cursor() as cursor:
             rows = list(df.itertuples(index=False))
@@ -60,7 +56,7 @@ def insert_overwrite_table(table_name: str, df: pd.DataFrame, http_path: str):
                 f"INSERT OVERWRITE {table_name} VALUES {values}",
             )
             progress.empty()
-            st.success("Changes saved")
+            st.success("Changes saved", icon="✅")
 
 
 tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
@@ -77,15 +73,26 @@ with tab_a:
     )
 
     if http_path_input and table_name:
-        original_df = read_table(table_name, http_path_input)
+        original_df = read_table(
+            table_name,
+            http_path_input,
+            credential_provider=credential_provider if client_id and client_secret else None,
+            oauth_type=None if client_id and client_secret else "databricks-oauth",
+        )
         edited_df = st.data_editor(original_df, num_rows="dynamic", hide_index=True)
 
         df_diff = pd.concat([original_df, edited_df]).drop_duplicates(keep=False)
         if not df_diff.empty:
             if st.button("Save changes"):
-                insert_overwrite_table(table_name, edited_df, http_path_input)
+                insert_overwrite_table(
+                    table_name,
+                    edited_df,
+                    http_path_input,
+                    credential_provider=credential_provider if client_id and client_secret else None,
+                    oauth_type=None if client_id and client_secret else "databricks-oauth",
+                )
     else:
-        st.warning("Input a SQL warehouse HTTP path and Unity Catalog table name.")
+        st.warning("Provide both an HTTP path and a table name to load data.")
 
 
 with tab_b:
@@ -97,7 +104,7 @@ import streamlit as st
 from databricks import sql
 from databricks.sdk.core import Config, oauth_service_principal
 
-server_hostname = os.getenv("DATABRICKS_HOST")
+server_hostname = os.getenv("DATABRICKS_HOST") or os.getenv("DATABRICKS_HOSTNAME")
 client_id = os.getenv("DATABRICKS_CLIENT_ID")
 client_secret = os.getenv("DATABRICKS_CLIENT_SECRET")
 
@@ -110,7 +117,6 @@ def credential_provider():
     return oauth_service_principal(config)
 
 def read_table(table_name: str, http_path: str) -> pd.DataFrame:
-    info = st.empty()
     with sql.connect(
         server_hostname=server_hostname,
         http_path=http_path,
@@ -118,12 +124,9 @@ def read_table(table_name: str, http_path: str) -> pd.DataFrame:
     ) as conn:
         with conn.cursor() as cursor:
             query = f"SELECT * FROM {table_name}"
-            with info:
-                st.info("Calling Databricks SQL...")
             cursor.execute(query)
-            df = pd.DataFrame(cursor.fetchall())
-            info.empty()
-    return df
+            columns = [desc[0] for desc in cursor.description]
+            return pd.DataFrame(cursor.fetchall(), columns=columns)
 
 def insert_overwrite_table(table_name: str, df: pd.DataFrame, http_path: str):
     progress = st.empty()
@@ -163,7 +166,7 @@ if http_path_input and table_name:
         if st.button("Save changes"):
             insert_overwrite_table(table_name, edited_df, http_path_input)
 else:
-    st.warning("Provide both an HTTP path and a table name to load data.")
+    st.warning("Provide both the warehouse path and a table name to load data.")
         """
     )
 
@@ -190,8 +193,8 @@ with tab_c:
         st.markdown(
             """
             **Dependencies**
-            * [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
-            * [Databricks SQL Connector for Python](https://pypi.org/project/databricks-sql-connector/) - `databricks-sql-connector`
+            * [Databricks SDK](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
+            * [Databricks SQL Connector](https://pypi.org/project/databricks-sql-connector/) - `databricks-sql-connector`
             * [Pandas](https://pypi.org/project/pandas/) - `pandas`
             * [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
             """

@@ -5,13 +5,13 @@ from databricks.sdk.service.serving import ChatMessage, ChatMessageRole
 
 w = WorkspaceClient()
 
-st.header(body="Machine Learning", divider=True)
+st.header(body="AI / ML", divider=True)
 st.subheader("Invoke a model")
 st.write(
     "This recipe invokes a model hosted on Mosaic AI Model Serving and returns the result. Choose either a traditional ML model or a large language model (LLM)."
 )
 
-tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
+tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippets**", "**Requirements**"])
 
 with tab_a:
     endpoints = w.serving_endpoints.list()

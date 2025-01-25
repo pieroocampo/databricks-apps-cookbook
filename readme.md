@@ -1,7 +1,7 @@
 # 📖 Databricks Apps Cookbook 🍳
 
 Ready-to-use code snippets for building interactive data applications using [Databricks Apps](https://docs.databricks.com/en/dev-tools/databricks-apps/index.html).
-* **10+ recipes for common use cases** such as reading and writing to and from tables and volumes, invoking machine learning models, or triggering workflows.
+* **10+ recipes for common use cases** such as reading and writing to and from tables and volumes, invoking traditional ML models and GenAI, or triggering workflows.
 * **Try recipes in the Cookbook app** and simply copy a code snippet to build your own.
 * **Description of requirements** (permissions, resources, dependencies) for each recipe.
 * Deploy to Databricks Apps or run locally.
@@ -23,7 +23,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 1. Select your new Git folder and choose **Deploy**.
 
 > [!IMPORTANT]  
-> Check the Requirements tab of each recipe to understand what service principal permissions, Databricks resources, and Python packages are required to use it.
+> Check the Requirements tab of each recipe to understand what [service principal permissions](https://docs.databricks.com/en/dev-tools/databricks-apps/app-development.html#configure-resources), Databricks resources, and Python packages are required to use it.
 
 ## Run locally
 1. [Clone this repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) to your local machine and switch into the `databricks-apps-cookbook` folder:
@@ -40,12 +40,13 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    ```bash
    pip install -r requirements.txt
    ```
-1. Install the [Databricks CLI](https://docs.databricks.com/en/dev-tools/cli/index.html) and authenticate with your Databricks workspace using [OAuth U2M](https://docs.databricks.com/en/dev-tools/auth/oauth-u2m.html).
+1. Install the [Databricks CLI](https://docs.databricks.com/en/dev-tools/cli/index.html) and authenticate with your Databricks workspace using [OAuth U2M](https://docs.databricks.com/en/dev-tools/auth/oauth-u2m.html), for example:
    ```bash
    databricks auth login --host https://my-workspace.cloud.databricks.com/
    ```
 1. Run the Cookbook app locally:
    ```bash
+   export DATABRICKS_HOSTNAME=https://my-workspace.cloud.databricks.com/
    streamlit run app.py
    ```
 

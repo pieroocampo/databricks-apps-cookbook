@@ -14,7 +14,7 @@ groups = [
         "views": [
             {
                 "label": "Read a table",
-                "help": "Query a Catalog Delta table.",
+                "help": "Query a Unity Catalog Delta table.",
                 "page": "views/tables_read.py",
                 "icon": ":material/table_view:",
             },
@@ -89,17 +89,6 @@ groups = [
         ],
     },
     {
-        "title": "Secrets",
-        "views": [
-            {
-                "label": "Retrieve a secret",
-                "help": "Get a sensitive API key without hard-coding it.",
-                "page": "views/secrets_retrieve.py",
-                "icon": ":material/lock:",
-            },
-        ],
-    },
-    {
         "title": "Authentication",
         "views": [
             {
@@ -107,6 +96,12 @@ groups = [
                 "help": "Get current App user information.",
                 "page": "views/users_get_current.py",
                 "icon": ":material/fingerprint:",
+            },
+            {
+                "label": "Retrieve a secret",
+                "help": "Get a sensitive API key without hard-coding it.",
+                "page": "views/secrets_retrieve.py",
+                "icon": ":material/lock:",
             },
         ],
     },
