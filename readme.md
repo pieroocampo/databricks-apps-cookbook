@@ -44,9 +44,12 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    ```bash
    databricks auth login --host https://my-workspace.cloud.databricks.com/
    ```
-1. Run the Cookbook app locally:
+1. Set required environment variables:
    ```bash
    export DATABRICKS_HOSTNAME=https://my-workspace.cloud.databricks.com/
+   ```
+1. Run the Cookbook app locally:
+   ```bash
    streamlit run app.py
    ```
 
