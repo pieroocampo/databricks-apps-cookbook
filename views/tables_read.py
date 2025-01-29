@@ -1,8 +1,7 @@
-import os
 import streamlit as st
 import pandas as pd
 from databricks import sql
-from databricks.sdk.core import Config, oauth_service_principal
+from databricks.sdk.core import Config
 
 st.header(body="Tables", divider=True)
 st.subheader("Read a table")
@@ -10,32 +9,20 @@ st.write(
     "This recipe reads a Unity Catalog table using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html)."
 )
 
-server_hostname = os.getenv("DATABRICKS_HOST") or os.getenv("DATABRICKS_HOSTNAME")
-client_id = os.getenv("DATABRICKS_CLIENT_ID")
-client_secret = os.getenv("DATABRICKS_CLIENT_SECRET")
+cfg = Config()
 
 
-def credential_provider():
-    config = Config(
-        host=f"https://{server_hostname}",
-        client_id=client_id,
-        client_secret=client_secret,
-    )
-    return oauth_service_principal(config)
-
-
-def read_table(table_name: str, http_path: str, **connection_details) -> pd.DataFrame:
+def read_table(table_name: str, http_path: str) -> pd.DataFrame:
     with sql.connect(
-        server_hostname=server_hostname,
+        server_hostname=cfg.host,
         http_path=http_path,
-        **connection_details,
+        credentials_provider=lambda: cfg.authenticate,
     ) as conn:
         with conn.cursor() as cursor:
             query = f"SELECT * FROM {table_name}"
             cursor.execute(query)
-            columns = [desc[0] for desc in cursor.description]
 
-            return pd.DataFrame(cursor.fetchall(), columns=columns)
+            return cursor.fetchall_arrow().to_pandas()
 
 
 tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
@@ -52,53 +39,42 @@ with tab_a:
     )
 
     if http_path_input and table_name:
-        df = read_table(
-            table_name,
-            http_path_input,
-            credential_provider=credential_provider if client_id and client_secret else None,
-            oauth_type=None if client_id and client_secret else "databricks-oauth",
-        )
+        df = read_table(table_name, http_path_input)
         st.dataframe(df)
 
 with tab_b:
     st.code(
         """
-import os
 import pandas as pd
 import streamlit as st
 from databricks import sql
-from databricks.sdk.core import Config, oauth_service_principal
+from databricks.sdk.core import Config
 
-server_hostname = os.getenv("DATABRICKS_HOST") or os.getenv("DATABRICKS_HOSTNAME")
-client_id = os.getenv("DATABRICKS_CLIENT_ID")
-client_secret = os.getenv("DATABRICKS_CLIENT_SECRET")
 
-def credential_provider():
-    config = Config(
-        host=f"https://{server_hostname}",
-        client_id=client_id,
-        client_secret=client_secret,
-    )
-    return oauth_service_principal(config)
+# Make sure to set the DATABRICKS_HOST environment variable when done locally
+cfg = Config()
+
 
 def read_table(table_name: str, http_path: str) -> pd.DataFrame:
     with sql.connect(
-        server_hostname=server_hostname,
+        server_hostname=cfg.host,
         http_path=http_path,
-        credentials_provider=credential_provider,
+        credentials_provider=lambda: cfg.authenticate,
     ) as conn:
         with conn.cursor() as cursor:
             query = f"SELECT * FROM {table_name}"
             cursor.execute(query)
-            columns = [desc[0] for desc in cursor.description]
 
-            return pd.DataFrame(cursor.fetchall(), columns=columns)
+            return cursor.fetchall_arrow().to_pandas()
 
+            
 # --- Streamlit code usage example ---
-http_path_input = st.text_input("Enter your Databricks HTTP Path:",
-                                placeholder="/sql/1.0/warehouses/xxxxxx")
-table_name = st.text_input("Specify a Unity Catalog table name:",
-                            placeholder="catalog.schema.table")
+http_path_input = st.text_input(
+    "Enter your Databricks HTTP Path:", placeholder="/sql/1.0/warehouses/xxxxxx"
+)
+table_name = st.text_input(
+    "Specify a Unity Catalog table name:", placeholder="catalog.schema.table"
+)
 if http_path_input and table_name:
     df = read_table(table_name, http_path_input)
     st.dataframe(df)
