@@ -46,7 +46,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    ```
 1. Set required environment variables:
    ```bash
-   export DATABRICKS_HOSTNAME=https://my-workspace.cloud.databricks.com/
+   export DATABRICKS_HOST=https://my-workspace.cloud.databricks.com/
    ```
 1. Run the Cookbook app locally:
    ```bash
