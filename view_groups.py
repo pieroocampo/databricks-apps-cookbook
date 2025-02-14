@@ -105,4 +105,15 @@ groups = [
             },
         ],
     },
+    {
+        "title": "Data Visualization",
+        "views": [
+            {
+                "label": "AI/BI Dashboard",
+                "help": "Embed an AI/BI dashboard.",
+                "page": "views/embed_dashboard.py",
+                "icon": ":material/dashboard:",
+            },
+        ],
+    },
 ]
