@@ -106,7 +106,7 @@ groups = [
         ],
     },
     {
-        "title": "Data Visualization",
+        "title": "Business Intelligence",
         "views": [
             {
                 "label": "AI/BI Dashboard",
