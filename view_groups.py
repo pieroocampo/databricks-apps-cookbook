@@ -118,7 +118,7 @@ groups = [
                 "label": "Genie",
                 "help": "Embed an Genie.",
                 "page": "views/genie_api.py",
-                "icon": ":material/genie_lamp:",
+                "icon": ":material/chat:",
             },
         ],
     },
