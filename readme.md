@@ -60,5 +60,4 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 We welcome contributions! Submit a [pull request](https://github.com/pbv0/databricks-apps-cookbook/pulls) to add or improve recipes. Check out the roadmap below for inspiration. Raise an [issue](https://github.com/pbv0/databricks-apps-cookbook/issues) to report a bug or raise a feature request.
 
 ## Roadmap / recipes wanted
-- [ ] Genie Conversations API
-- [ ] Embedding a dashboard
+

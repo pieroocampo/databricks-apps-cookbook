@@ -17,12 +17,10 @@ st.write(
 tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
 
 with tab_a:
-    # Sidebar for configuration
-    with st.sidebar:
-        st.header("Configuration")
-        workspace_instance_name = st.text_input("Workspace Instance Name")
-        authentication_token = st.text_input("Authentication Token", type='password')
-        space_id = st.text_input("Genie Space ID")
+    st.header("Configuration")
+    workspace_instance_name = st.text_input("Workspace Instance Name")
+    authentication_token = st.text_input("Authentication Token", type='password')
+    space_id = st.text_input("Genie Space ID")
 
     # Headers for API requests
     headers = {

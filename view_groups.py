@@ -106,13 +106,19 @@ groups = [
         ],
     },
     {
-        "title": "Data Visualization",
+        "title": "Business Intelligence",
         "views": [
             {
                 "label": "AI/BI Dashboard",
                 "help": "Embed an AI/BI dashboard.",
                 "page": "views/embed_dashboard.py",
                 "icon": ":material/dashboard:",
+            },
+            {
+                "label": "Genie",
+                "help": "Embed an Genie.",
+                "page": "views/genie_api.py",
+                "icon": ":material/chat:",
             },
         ],
     },
