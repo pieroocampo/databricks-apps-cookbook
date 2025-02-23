@@ -12,6 +12,7 @@ st.write(
     This app uses [Databricks AI/BI Genie](https://www.databricks.com/product/ai-bi) to let users ask questions about your data for instant insights.
     """
 )
+st.warning("Genie Conversations API which powers this example is currently in Private Preview and not officially supported.")
 
 cfg = Config()
 
@@ -19,13 +20,24 @@ tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements
 
 with tab_a:
     genie_space_id = st.text_input("Genie Space ID")
-    authentication_token = st.text_input("Authentication Token", type="password")
+    token = st.text_input("Authentication Token", type="password")
 
     headers = {
-        "Authorization": f"Bearer {authentication_token}"
+        "Authorization": f"Bearer {token}"
     }
 
-    # Function definitions (start_conversation, get_conversation_message, get_query_result) go here
+    message_placeholder = st.empty()
+
+    st.write(cfg.host)
+
+    def start_conversation():
+        url = f"https://{cfg.host}/api/2.0/genie/spaces/{genie_space_id}/start-conversation"
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {"content": prompt}
+        response = requests.post(url, json=payload, headers=headers)
+        reply = response.json().get("reply", "No response received.")
+        message_placeholder.markdown(reply)
+        st.session_state["messages"].append({"role": "assistant", "content": reply})
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -36,20 +48,15 @@ with tab_a:
             if "data" in message:
                 st.dataframe(message["data"])
 
-    if prompt := st.chat_input("Ask Genie a question"):
+    if prompt := st.chat_input("Ask your question..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
-            if cfg.host and genie_space_id and authentication_token:
-                try:
-                    # API interaction code goes here
-                    pass
-                except Exception as e:
-                    message_placeholder.error(f"An error occurred: {str(e)}")
-                    st.session_state.messages.append({"role": "assistant", "content": f"An error occurred: {str(e)}"})
+            if cfg.host and genie_space_id and token:
+                start_conversation()
             else:
                 message_placeholder.error('Please fill in all configuration fields in the sidebar.')
                 st.session_state.messages.append({"role": "assistant", "content": "Please fill in all configuration fields in the sidebar."})
