@@ -1,6 +1,19 @@
 from dash import html, dcc, callback, Input, Output
 import dash_bootstrap_components as dbc
 from flask import request
+import dash
+
+# pages/users_get_current.py
+dash.register_page(
+    __name__,
+    path='/users/get-current',
+    title='Get current user',
+    name='Get current user',
+    category='Authentication',
+    icon='material-symbols:person'
+)
+
+
 
 def layout():
     return dbc.Container([

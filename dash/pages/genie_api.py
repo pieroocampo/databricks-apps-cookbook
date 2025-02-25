@@ -4,6 +4,17 @@ import requests
 import pandas as pd
 from databricks.sdk.core import Config
 from dash.exceptions import PreventUpdate
+import dash
+
+# pages/genie_api.py
+dash.register_page(
+    __name__,
+    path='/genie/api',
+    title='Genie API',
+    name='AI/BI Dashboard',
+    category='Business Intelligence',
+    icon='material-symbols:dashboard'
+)
 
 cfg = Config()
 
@@ -70,10 +81,10 @@ def layout():
                 ], className="mb-4"),
                 
                 # Chat history area
-                html.Div(id="chat-history", className="mt-4"),
+                html.Div(id="chat-history-genie", className="mt-4"),
                 
                 # Status/error messages
-                html.Div(id="status-area", className="mt-3")
+                html.Div(id="status-area-genie", className="mt-3")
             ], className="p-3"),
             
             # Code snippet tab
@@ -132,9 +143,9 @@ response = start_conversation(genie_space_id, "What is the total revenue by regi
     ], fluid=True, className="py-4")
 
 @callback(
-    [Output("chat-history", "children"),
-     Output("status-area", "children")],
-    [Input("ask-button", "n_clicks")],
+    [Output("chat-history-genie", "children"),
+     Output("status-area-genie", "children")],
+    Input("ask-button", "n_clicks"),
     [State("genie-space-input", "value"),
      State("auth-token-input", "value"),
      State("question-input", "value")],

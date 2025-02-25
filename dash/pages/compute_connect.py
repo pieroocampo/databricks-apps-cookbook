@@ -4,7 +4,17 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from databricks.connect import DatabricksSession
 from dash.exceptions import PreventUpdate
+import dash
 
+# pages/compute_connect.py
+dash.register_page(
+    __name__,
+    path='/compute/connect',
+    title='Compute Connect',
+    name='Connect',
+    category='Compute',
+    icon='material-symbols:link'
+)
 server_hostname = os.getenv("DATABRICKS_HOST") or os.getenv("DATABRICKS_HOSTNAME")
 
 def connect_to_cluster(cluster_id: str):

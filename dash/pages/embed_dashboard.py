@@ -1,5 +1,16 @@
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
+import dash
+
+# pages/embed_dashboard.py
+dash.register_page(
+    __name__,
+    path='/data-visualization/embed-dashboard',
+    title='Embed Dashboard',
+    name='Embed Dashboard',
+    category='Data Visualization',
+    icon='material-symbols:dashboard'
+)
 
 def layout():
     return dbc.Container([

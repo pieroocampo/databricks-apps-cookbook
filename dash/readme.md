@@ -50,7 +50,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    ```
 1. Run the Cookbook app locally:
    ```bash
-   python3 dash/app.py
+   streamlit run app.py
    ```
 
 > [!IMPORTANT]  

@@ -4,6 +4,17 @@ from databricks import sql
 from databricks.sdk.core import Config
 import pandas as pd
 from functools import lru_cache
+import dash
+
+# pages/tables_edit.py
+dash.register_page(
+    __name__,
+    path='/tables/edit',
+    title='Edit Table',
+    name='Edit a table',
+    category='Tables',
+    icon='table'
+)
 
 cfg = Config()
 
@@ -63,11 +74,11 @@ def layout():
                                       })
                         ], width=12)
                     ]),
-                    dbc.Button("Load Table", id="load-button", color="primary", className="mb-4", size="md")
+                    dbc.Button("Load Table", id="load-button-edit", color="primary", className="mb-4", size="md")
                 ], className="mt-3"),
                 html.Div(id="table-editor", className="mt-3"),
-                dbc.Button("Save Changes", id="save-button", color="success", className="mt-3 d-none", size="md"),
-                html.Div(id="status-area", className="mt-3")
+                dbc.Button("Save Changes", id="save-button-edit", color="success", className="mt-3 d-none", size="md"),
+                html.Div(id="status-area-edit", className="mt-3")
             ], className="p-3"),
             
             dbc.Tab(label="Code snippet", tab_id="code-snippet", children=[
@@ -139,14 +150,14 @@ insert_overwrite_table(table_name, df, conn)
 
 @callback(
     [Output("table-editor", "children"),
-     Output("save-button", "className"),
-     Output("status-area", "children")],
-    Input("load-button", "n_clicks"),
+     Output("save-button-edit", "className"),
+     Output("status-area-edit", "children", allow_duplicate=True)],
+    Input("load-button-edit", "n_clicks"),
     [State("http-path-input", "value"),
      State("table-name-input", "value")],
     prevent_initial_call=True
 )
-def load_table_data(n_clicks, http_path, table_name):
+def load_table_data_edit(n_clicks, http_path, table_name):
     if not http_path or not table_name:
         return None, "mt-3 d-none", dbc.Alert("Please provide both HTTP path and table name", color="warning")
     try:
@@ -167,8 +178,8 @@ def load_table_data(n_clicks, http_path, table_name):
         return None, "mt-3 d-none", dbc.Alert(f"Error loading table: {str(e)}", color="danger")
 
 @callback(
-    Output("status-area", "children", allow_duplicate=True),
-    Input("save-button", "n_clicks"),
+    Output("status-area-edit", "children"),
+    Input("save-button-edit", "n_clicks"),
     [State("editing-table", "data"),
      State("table-name-input", "value"),
      State("http-path-input", "value")],

@@ -2,53 +2,44 @@ from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from databricks.sdk import WorkspaceClient
 import json
+import dash
+
+# pages/workflows_get_results.py
+dash.register_page(
+    __name__,
+    path='/workflows/get-results',
+    title='Retrieve job results',
+    name='Retrieve job results',
+    category='Workflows',
+    icon='material-symbols:list-alt'
+)
+
 
 w = WorkspaceClient()
-
-def trigger_workflow(job_id: str, parameters: dict):
-    try:
-        run = w.jobs.run_now(job_id=job_id, job_parameters=parameters)
-        return {
-            "run_id": run.run_id,
-            "state": "Triggered",
-        }
-    except Exception as e:
-        return {"error": str(e)}
 
 def layout():
     return dbc.Container([
         html.H1("Workflows", className="my-4"),
-        html.H2("Run a job", className="mb-3"),
+        html.H2("Retrieve job results", className="mb-3"),
         html.P([
-            "This recipe triggers a ",
+            "This recipe retrieves the results of a ",
             html.A(
                 "Databricks Workflows",
                 href="https://docs.databricks.com/en/jobs/index.html",
                 target="_blank"
             ),
-            " job."
+            " job task run."
         ], className="mb-4"),
         
         dbc.Tabs([
             # Try it tab
-            dbc.Tab(label="Try it", tab_id="try-it",  children=[
+            dbc.Tab(label="Try it", tab_id="try-it", children=[
                 dbc.Form([
-                    dbc.Label("Specify job id:", className="mt-3"),
+                    dbc.Label("Specify a task run ID:", className="mt-3"),
                     dbc.Input(
-                        id="job-id-input",
+                        id="task-run-input",
                         type="text",
-                        placeholder="921773893211960",
-                        style={
-                            "backgroundColor": "#f8f9fa",
-                            "border": "1px solid #dee2e6",
-                            "boxShadow": "inset 0 1px 2px rgba(0,0,0,0.075)"
-                        }
-                    ),
-                    
-                    dbc.Label("Specify job parameters as JSON:", className="mt-3"),
-                    dbc.Textarea(
-                        id="parameters-input",
-                        placeholder='{"param1": "value1", "param2": "value2"}',
+                        placeholder="293894477334278",
                         style={
                             "backgroundColor": "#f8f9fa",
                             "border": "1px solid #dee2e6",
@@ -57,13 +48,13 @@ def layout():
                     ),
                     
                     dbc.Button(
-                        "Trigger job",
-                        id="trigger-button",
+                        "Get task run results",
+                        id="get-results-button",
                         color="primary",
                         className="mt-3"
                     ),
                 ]),
-                html.Div(id="trigger-output", className="mt-4")
+                html.Div(id="results-output", className="mt-4")
             ], className="p-3"),
             
             # Code snippet tab
@@ -73,14 +64,10 @@ from databricks.sdk import WorkspaceClient
 
 w = WorkspaceClient()
 
-job_id = "921773893211960"
-parameters = {"param1": "value1", "param2": "value2"}
+task_run_id = "293894477334278"
+results = w.jobs.get_run_output(task_run_id)
 
-try:
-    run = w.jobs.run_now(job_id=job_id, job_parameters=parameters)
-    print(f"Started run with ID {run.run_id}")
-except Exception as e:
-    print(f"Error: {e}")
+print(results)
 ```''', className="p-4 border rounded")
             ], className="p-3"),
             
@@ -90,7 +77,7 @@ except Exception as e:
                     dbc.Col([
                         html.H4("Permissions (app service principal)", className="mb-3"),
                         html.Ul([
-                            dcc.Markdown("**```CAN MANAGE RUN```** on the job")
+                            dcc.Markdown("**```CAN VIEW```** on the job")
                         ], className="mb-4"),
                         html.P([
                             "See ",
@@ -120,57 +107,61 @@ except Exception as e:
         ], className="mb-4", active_tab="try-it")
     ], fluid=True, className="py-4")
 
+def format_output_section(title, data):
+    if not data:
+        return None
+    return dbc.Card(
+        dbc.CardBody([
+            html.H5(title, className="mb-3"),
+            dcc.Markdown(f"```json\n{json.dumps(data.as_dict(), indent=2)}\n```")
+        ]),
+        className="mb-3"
+    )
+
 @callback(
-    Output("trigger-output", "children"),
-    [Input("trigger-button", "n_clicks")],
-    [State("job-id-input", "value"),
-     State("parameters-input", "value")],
+    Output("results-output", "children"),
+    [Input("get-results-button", "n_clicks")],
+    [State("task-run-input", "value")],
     prevent_initial_call=True
 )
-def update_output(n_clicks, job_id, parameters_input):
-    if not job_id or not job_id.strip():
+def update_results(n_clicks, task_run_id):
+    if not task_run_id or not task_run_id.strip():
         return dbc.Alert(
-            "Please specify a valid job ID.",
-            color="warning"
-        )
-    
-    if not parameters_input or not parameters_input.strip():
-        return dbc.Alert(
-            "Please specify input parameters.",
+            "Please specify a valid task run ID.",
             color="warning"
         )
     
     try:
-        parameters = json.loads(parameters_input)
-        results = trigger_workflow(job_id.strip(), parameters)
+        results = w.jobs.get_run_output(task_run_id)
+        output_sections = []
         
-        if "error" in results:
-            return dbc.Alert(
-                f"Error triggering workflow: {results['error']}",
-                color="danger"
+        # Success message
+        output_sections.append(
+            dbc.Alert(
+                "Task run results retrieved successfully",
+                color="success",
+                className="mb-3"
             )
-        else:
-            return html.Div([
-                dbc.Alert(
-                    "Workflow triggered successfully",
-                    color="success",
-                    className="mb-3"
-                ),
-                dbc.Card(
-                    dbc.CardBody([
-                        dcc.Markdown(f"```json\n{json.dumps(results, indent=2)}\n```")
-                    ])
-                )
-            ])
-            
-    except json.JSONDecodeError as e:
-        return dbc.Alert(
-            f"Error parsing input parameters: Invalid JSON format - {str(e)}",
-            color="danger"
         )
+        
+        # Add each type of output if present
+        if results.sql_output:
+            output_sections.append(format_output_section("SQL output", results.sql_output))
+        
+        if results.dbt_output:
+            output_sections.append(format_output_section("dbt output", results.dbt_output))
+            
+        if results.run_job_output:
+            output_sections.append(format_output_section("Run job output", results.run_job_output))
+            
+        if results.notebook_output:
+            output_sections.append(format_output_section("Notebook output", results.notebook_output))
+            
+        return html.Div(output_sections)
+        
     except Exception as e:
         return dbc.Alert(
-            f"Error: {str(e)}",
+            f"Error retrieving results: {str(e)}",
             color="danger"
         )
 

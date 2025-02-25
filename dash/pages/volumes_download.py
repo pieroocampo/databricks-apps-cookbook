@@ -3,6 +3,19 @@ import dash_bootstrap_components as dbc
 from databricks.sdk import WorkspaceClient
 import os
 import base64
+import dash
+
+# pages/volumes_download.py
+dash.register_page(
+    __name__,
+    path='/volumes/download',
+    title='Download a file',
+    name='Download a file',
+    category='Volumes',
+    icon='material-symbols:download'
+)
+
+
 
 w = WorkspaceClient()
 
@@ -50,7 +63,7 @@ def layout():
                     )
                 ], className="mt-3"),
                 html.Div(id="download-area", className="mt-3"),
-                html.Div(id="status-area", className="mt-3")
+                html.Div(id="status-area-download", className="mt-3")
             ], className="p-3"),
             
             dbc.Tab(label="Code snippet", tab_id="code-snippet", children=[
@@ -103,7 +116,7 @@ file_name = os.path.basename(download_file_path)
 
 @callback(
     [Output("download-area", "children"),
-     Output("status-area", "children")],
+     Output("status-area-download", "children")],
     Input("get-file-button", "n_clicks"),
     State("file-path-input", "value"),
     prevent_initial_call=True

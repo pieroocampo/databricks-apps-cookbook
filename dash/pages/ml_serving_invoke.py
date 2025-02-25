@@ -4,6 +4,17 @@ import dash_bootstrap_components as dbc
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.serving import ChatMessage, ChatMessageRole
 from databricks.sdk.errors import DatabricksError
+import dash
+
+# pages/ml_serving_invoke.py
+dash.register_page(
+    __name__,
+    path='/ml/serving-invoke',
+    title='Invoke a model',
+    name='Invoke a model',
+    category='AI / ML',
+    icon='material-symbols:model-training'
+)
 
 # Initialize WorkspaceClient with error handling
 try:
@@ -322,7 +333,11 @@ def update_model_inputs(model_type):
                     href="https://docs.databricks.com/en/machine-learning/model-serving/create-manage-serving-endpoints.html#create-an-endpoint",
                     target="_blank"
                 ),
-                " to Mosaic AI Model Serving."
+                " to Mosaic AI Model Serving. Request pattern corresponds to the model signature ",
+           
+                    html.A("registered in Unity Catalog",
+                           href="https://docs.databricks.com/en/machine-learning/manage-model-lifecycle/index.html#train-and-register-unity-catalog-compatible-models",
+                           target="_blank")
             ], color="info", className="mb-3"),
             dbc.Label("Enter model input:", className="fw-bold mb-2"),
             dbc.Textarea(
@@ -336,48 +351,62 @@ def update_model_inputs(model_type):
                 }
             ),
             dbc.Button(
-                "Invoke Model",
+                "Invoke ML Model",
                 id="ml-invoke-button",
                 color="primary",
                 className="mb-3"
             )
         ])
 
+# Separate callback for LLM models
 @callback(
-    Output("model-output", "children"),
-    [Input("llm-invoke-button", "n_clicks"),
-     Input("ml-invoke-button", "n_clicks")],
+    Output("model-output", "children", allow_duplicate=True),
+    [Input("llm-invoke-button", "n_clicks")],
     [State("model-select", "value"),
-     State("model-type", "value"),
      State("temperature-slider", "value"),
-     State("prompt-input", "value"),
+     State("prompt-input", "value")],
+    prevent_initial_call=True
+)
+def invoke_llm_model(n_clicks, model_name, temperature, prompt):
+    if not model_name:
+        return dbc.Alert("Please select a model", color="warning")
+    
+    if not prompt:
+        return dbc.Alert("Please enter a prompt", color="warning")
+        
+    try:
+        response = w.serving_endpoints.query(
+            name=model_name,
+            messages=[
+                ChatMessage(role=ChatMessageRole.SYSTEM, content="You are a helpful assistant."),
+                ChatMessage(role=ChatMessageRole.USER, content=prompt),
+            ],
+            temperature=temperature
+        )
+        return dcc.Markdown(f"```json\n{response.as_dict()}\n```")
+    except Exception as e:
+        return dbc.Alert(f"Error invoking model: {str(e)}", color="danger")
+
+# Separate callback for traditional ML models
+@callback(
+    Output("model-output", "children", allow_duplicate=True),
+    [Input("ml-invoke-button", "n_clicks")],
+    [State("model-select", "value"),
      State("ml-input", "value")],
     prevent_initial_call=True
 )
-def invoke_model(llm_clicks, ml_clicks, model_name, model_type, temperature, prompt, ml_input):
+def invoke_ml_model(n_clicks, model_name, ml_input):
     if not model_name:
         return dbc.Alert("Please select a model", color="warning")
+    
+    if not ml_input:
+        return dbc.Alert("Please enter model input", color="warning")
         
     try:
-        if model_type == "LLM":
-            if not prompt:
-                return dbc.Alert("Please enter a prompt", color="warning")
-            response = w.serving_endpoints.query(
-                name=model_name,
-                messages=[
-                    ChatMessage(role=ChatMessageRole.SYSTEM, content="You are a helpful assistant."),
-                    ChatMessage(role=ChatMessageRole.USER, content=prompt),
-                ],
-                temperature=temperature
-            )
-        else:
-            if not ml_input:
-                return dbc.Alert("Please enter model input", color="warning")
-            response = w.serving_endpoints.query(
-                name=model_name,
-                dataframe_records=loads(ml_input)
-            )
-        
+        response = w.serving_endpoints.query(
+            name=model_name,
+            dataframe_records=loads(ml_input)
+        )
         return dcc.Markdown(f"```json\n{response.as_dict()}\n```")
     except Exception as e:
         return dbc.Alert(f"Error invoking model: {str(e)}", color="danger")

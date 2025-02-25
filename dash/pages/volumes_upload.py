@@ -5,6 +5,17 @@ from databricks.sdk.service.catalog import SecurableType
 import os
 import io
 import base64
+import dash
+
+# pages/volumes_upload.py
+dash.register_page(
+    __name__,
+    path='/volumes/upload',
+    title='Volumes Upload',
+    name='Upload a file',
+    category='Volumes',
+    icon='material-symbols:upload'
+)
 
 w = WorkspaceClient()
 
@@ -75,7 +86,7 @@ def layout():
                 ], className="mt-3"),
                 
                 html.Div(id="upload-area", className="mt-3"),
-                html.Div(id="status-area", className="mt-3")
+                html.Div(id="status-area-upload", className="mt-3")
             ], className="p-3"),
             
             dbc.Tab(label="Code snippet", tab_id="code-snippet", children=[
@@ -138,7 +149,7 @@ w.files.upload(volume_file_path, binary_data, overwrite=True)
 
 @callback(
     [Output("upload-area", "children"),
-     Output("status-area", "children")],
+     Output("status-area-upload", "children")],
     Input("check-volume-button", "n_clicks"),
     State("volume-path-input", "value"),
     prevent_initial_call=True
@@ -180,7 +191,7 @@ def enable_upload_button(contents):
     return contents is None
 
 @callback(
-    Output("status-area", "children", allow_duplicate=True),
+    Output("status-area-upload", "children", allow_duplicate=True),
     Input("upload-button", "n_clicks"),
     [State("upload-data", "contents"),
      State("upload-data", "filename"),

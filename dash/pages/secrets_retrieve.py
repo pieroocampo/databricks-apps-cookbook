@@ -1,6 +1,18 @@
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from databricks.sdk import WorkspaceClient
+import dash
+
+# pages/secrets_retrieve.py
+dash.register_page(
+    __name__,
+    path='/secrets/retrieve',
+    title='Secrets Retrieve',
+    name='Retrieve a secret',
+    category='Authentication',
+    icon='material-symbols:key'
+)
+
 
 w = WorkspaceClient()
 

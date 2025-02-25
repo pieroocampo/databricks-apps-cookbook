@@ -1,6 +1,17 @@
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from databricks.sdk import WorkspaceClient
+import dash
+
+# pages/ml_vector_search.py
+dash.register_page(
+    __name__,
+    path='/ml/vector-search',
+    title='Run vector search',
+    name='Run vector search',
+    category='AI / ML',
+    icon='material-symbols:search'
+)
 
 w = WorkspaceClient()
 
@@ -73,9 +84,6 @@ def layout():
                             "border": "1px solid #dee2e6",
                             "boxShadow": "inset 0 1px 2px rgba(0,0,0,0.075)"
                         }
-                    ),
-                    dbc.FormText(
-                        "Enter one or more column names present in the vector search index, separated by commas. E.g. id, text, url."
                     ),
                     
                     dbc.Label("Your query:", className="mt-3"),
