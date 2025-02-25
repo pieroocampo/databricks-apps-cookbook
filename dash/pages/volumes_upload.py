@@ -161,15 +161,20 @@ def handle_volume_check(n_clicks, volume_path):
     permission_result = check_upload_permissions(volume_path.strip())
     if permission_result == "Volume and permissions validated":
         upload_form = dbc.Form([
-            dcc.Upload(
-                id="upload-data",
-                children=dbc.Button(
-                    "Select file to upload",
-                    color="primary",
-                    className="mt-3"
-                ),
-                className="mb-3"
-            ),
+            # File upload section with simple inline filename display
+            html.Div([
+                dcc.Upload(
+                    id='upload-data',
+                    children=html.Div([
+                        dbc.Button(
+                            "Select file to upload",
+                            color="primary",
+                            className="me-2"
+                        ),
+                        html.Span(id="selected-filename", style={"vertical-align": "middle"})
+                    ], style={"display": "inline-block"})
+                )
+            ], className="mb-3"),
             dbc.Button(
                 f"Upload file to {volume_path}",
                 id="upload-button",
@@ -227,6 +232,17 @@ def handle_file_upload(n_clicks, contents, filename, volume_path):
         ], color="success")
     except Exception as e:
         return dbc.Alert(f"Error uploading file: {str(e)}", color="danger")
+
+# Simple callback to show filename
+@callback(
+    Output("selected-filename", "children"),
+    Input("upload-data", "filename"),
+    prevent_initial_call=True
+)
+def update_filename(filename):
+    if filename:
+        return filename
+    return ""
 
 # Make layout available at module level
 __all__ = ['layout']

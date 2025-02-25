@@ -6,15 +6,6 @@ from databricks.sdk.core import Config
 from dash.exceptions import PreventUpdate
 import dash
 
-# pages/genie_api.py
-dash.register_page(
-    __name__,
-    path='/genie/api',
-    title='Genie API',
-    name='AI/BI Dashboard',
-    category='Business Intelligence',
-    icon='material-symbols:dashboard'
-)
 
 cfg = Config()
 

@@ -5,6 +5,7 @@ import pandas as pd
 from databricks.connect import DatabricksSession
 from dash.exceptions import PreventUpdate
 import dash
+import dash_table
 
 # pages/compute_connect.py
 dash.register_page(
@@ -79,7 +80,12 @@ def layout():
                                 className="mt-3"
                             )
                         ]),
-                        html.Div(id="python-output", className="mt-3")
+                        dbc.Spinner(
+                            html.Div(id="python-output", className="mt-3"),
+                            color="primary",
+                            type="border",
+                            fullscreen=False,
+                        ),
                     ], label="Python", tab_id="python"),
                     
                     dbc.Tab([
@@ -181,7 +187,12 @@ def layout():
                                         "borderRadius": "4px"
                                     }
                                 ),
-                                html.Div(id="sql-output", className="mt-3")
+                                dbc.Spinner(
+                                    html.Div(id="sql-output", className="mt-3"),
+                                    color="primary",
+                                    type="border",
+                                    fullscreen=False,
+                                )
                             ])
                         ])
                     ], label="SQL", tab_id="sql")
@@ -243,8 +254,7 @@ print(result)
 
 @callback(
     [Output("connection-status", "children"),
-     Output("dataset-a-table", "children"),
-     Output("dataset-b-table", "children")],
+     Output("sql-output", "children", allow_duplicate=True)],
     [Input("cluster-id-input", "value")],
     prevent_initial_call=True
 )
@@ -259,42 +269,53 @@ def update_connection(cluster_id):
             "Master URL": spark.conf.get("spark.master", "Unknown"),
         }
         
-        # Create sample datasets with styled tables
-        def create_styled_table(data):
-            header = html.Thead(html.Tr([
-                html.Th("id", style={"backgroundColor": "#f8f9fa", "color": "#666"}),
-                html.Th("value", style={"backgroundColor": "#f8f9fa", "color": "#666"})
-            ]))
-            
-            body = html.Tbody([
-                html.Tr([
-                    html.Td(row["id"]),
-                    html.Td(row["value"])
-                ]) for _, row in data.iterrows()
-            ])
-            
-            return dbc.Table([header, body], 
-                           bordered=True,
-                           hover=True,
-                           size="sm",
-                           style={"backgroundColor": "white"})
-        
+        # Create sample datasets
         df_a = pd.DataFrame({"id": [1, 2, 3], "value": ["A1", "A2", "A3"]})
-        df_b = pd.DataFrame({"id": [2, 3, 4], "value": ["B1", "B2", "B3"]})
         
         return [
             html.Div([
                 dbc.Alert("Successfully connected to Spark", color="success", className="mb-3"),
                 dbc.Card(dbc.CardBody(dcc.Markdown(f"```json\n{session_info}\n```")))
             ]),
-            create_styled_table(df_a),
-            create_styled_table(df_b)
+            dash_table.DataTable(
+                data=df_a.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in df_a.columns],
+                style_table={
+                    'overflowX': 'auto',
+                    'minWidth': '100%',
+                },
+                style_header={
+                    'backgroundColor': '#f8f9fa',
+                    'fontWeight': 'bold',
+                    'border': '1px solid #dee2e6',
+                    'padding': '12px 15px'
+                },
+                style_cell={
+                    'padding': '12px 15px',
+                    'textAlign': 'left',
+                    'border': '1px solid #dee2e6',
+                },
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto',
+                },
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': '#f8f9fa',
+                    }
+                ],
+                page_size=10,
+                page_action='native',
+                sort_action='native',
+                sort_mode='multi',
+            )
         ]
     except Exception as e:
-        return dbc.Alert(f"Error connecting to cluster: {str(e)}", color="danger"), None, None
+        return dbc.Alert(f"Error connecting to cluster: {str(e)}", color="danger"), None
 
 @callback(
-    Output("python-output", "children"),
+    Output("python-output", "children", allow_duplicate=True),
     [Input("generate-button", "n_clicks")],
     [State("cluster-id-input", "value"),
      State("data-points-input", "value")],
@@ -307,12 +328,39 @@ def generate_data(n_clicks, cluster_id, num_points):
     try:
         spark = connect_to_cluster(cluster_id)
         df = spark.range(num_points).toPandas()
-        return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+        
+        return dash_table.DataTable(
+            data=df.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in df.columns],
+            style_table={
+                'overflowX': 'auto',
+                'minWidth': '100%',
+            },
+            style_header={
+                'backgroundColor': '#f8f9fa',
+                'fontWeight': 'bold',
+                'border': '1px solid #dee2e6',
+                'padding': '12px 15px'
+            },
+            style_cell={
+                'padding': '12px 15px',
+                'textAlign': 'left',
+                'border': '1px solid #dee2e6',
+            },
+            style_data={
+                'whiteSpace': 'normal',
+                'height': 'auto',
+            },
+            page_size=10,
+            page_action='native',
+            sort_action='native',
+            sort_mode='multi',
+        )
     except Exception as e:
         return dbc.Alert(f"Error generating data: {str(e)}", color="danger")
 
 @callback(
-    Output("sql-output", "children"),
+    Output("sql-output", "children", allow_duplicate=True),
     [Input("perform-sql-button", "n_clicks")],
     [State("cluster-id-input", "value"),
      State("sql-operation", "value")],
@@ -333,7 +381,40 @@ def perform_sql(n_clicks, cluster_id, operation):
             query = f"SELECT * FROM {a} {operation} SELECT * FROM {b}"
         
         result = spark.sql(query).toPandas()
-        return dbc.Table.from_dataframe(result, striped=True, bordered=True, hover=True)
+        
+        return dash_table.DataTable(
+            data=result.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in result.columns],
+            style_table={
+                'overflowX': 'auto',
+                'minWidth': '100%',
+            },
+            style_header={
+                'backgroundColor': '#f8f9fa',
+                'fontWeight': 'bold',
+                'border': '1px solid #dee2e6',
+                'padding': '12px 15px'
+            },
+            style_cell={
+                'padding': '12px 15px',
+                'textAlign': 'left',
+                'border': '1px solid #dee2e6',
+            },
+            style_data={
+                'whiteSpace': 'normal',
+                'height': 'auto',
+            },
+            style_data_conditional=[
+                {
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': '#f8f9fa',
+                }
+            ],
+            page_size=10,
+            page_action='native',
+            sort_action='native',
+            sort_mode='multi',
+        )
     except Exception as e:
         return dbc.Alert(f"Error executing SQL: {str(e)}", color="danger")
 

@@ -322,6 +322,13 @@ def update_model_inputs(model_type):
                 id="llm-invoke-button",
                 color="primary",
                 className="mb-3"
+            ),
+            # Add spinner for model output
+            dbc.Spinner(
+                html.Div(id="model-output", className="mt-3"),
+                color="primary",
+                type="border",
+                fullscreen=False,
             )
         ])
     else:
@@ -355,6 +362,13 @@ def update_model_inputs(model_type):
                 id="ml-invoke-button",
                 color="primary",
                 className="mb-3"
+            ),
+            # Add spinner for model output
+            dbc.Spinner(
+                html.Div(id="model-output", className="mt-3"),
+                color="primary",
+                type="border",
+                fullscreen=False,
             )
         ])
 

@@ -105,7 +105,12 @@ def layout():
                         className="mt-3"
                     ),
                 ]),
-                html.Div(id="search-results", className="mt-4")
+                dbc.Spinner(
+                    html.Div(id="search-results", className="mt-4"),
+                    color="primary",
+                    type="border",
+                    fullscreen=False,
+                )
             ], label="Try it", tab_id="tab-1"),
             
             # Code snippet tab

@@ -33,28 +33,36 @@ def layout():
             dbc.Tab(label="Try it", tab_id="tab-1", children=[
                 html.Div([
                     html.H4("User Details", className="mb-3"),
-                    dbc.Row([
-                        dbc.Col([
-                            html.P([
-                                html.Strong("E-mail: "), 
-                                html.Span(id="user-email")
-                            ]),
-                            html.P([
-                                html.Strong("Username: "), 
-                                html.Span(id="user-name")
-                            ]),
-                            html.P([
-                                html.Strong("IP Address: "), 
-                                html.Span(id="user-ip")
+                    dbc.Spinner(
+                        dbc.Row([
+                            dbc.Col([
+                                html.P([
+                                    html.Strong("E-mail: "), 
+                                    html.Span(id="user-email")
+                                ]),
+                                html.P([
+                                    html.Strong("Username: "), 
+                                    html.Span(id="user-name")
+                                ]),
+                                html.P([
+                                    html.Strong("IP Address: "), 
+                                    html.Span(id="user-ip")
+                                ])
                             ])
-                        ])
-                    ]),
+                        ]),
+                        color="primary",
+                        type="border",
+                    ),
                     html.H4("All Headers", className="mt-4 mb-3"),
-                    html.Pre(id="all-headers", style={
-                        'backgroundColor': '#f8f9fa',
-                        'padding': '1rem',
-                        'borderRadius': '0.25rem'
-                    })
+                    dbc.Spinner(
+                        html.Pre(id="all-headers", style={
+                            'backgroundColor': '#f8f9fa',
+                            'padding': '1rem',
+                            'borderRadius': '0.25rem'
+                        }),
+                        color="primary",
+                        type="border",
+                    )
                 ], className="p-3")
             ], className="p-3"),
             
@@ -104,9 +112,9 @@ print(f"E-mail: {email}, username: {username}, user: {user}, ip: {ip}")
      Output("user-name", "children"),
      Output("user-ip", "children"),
      Output("all-headers", "children")],
-    Input("_", "children") 
+    Input("tabs", "active_tab")
 )
-def update_user_info(_):
+def update_user_info(tab):
     headers = dict(request.headers)
     return (
         headers.get("X-Forwarded-Email", "Not available"),

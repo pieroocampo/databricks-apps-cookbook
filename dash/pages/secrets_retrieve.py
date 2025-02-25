@@ -92,7 +92,7 @@ def get_secret(scope, key):
 scope_name = "my_secret_scope"
 secret_key = "api_key"
 secret = get_secret(scope_name, secret_key)
-    ```''', className="border rounded p-3")
+```''', className="border rounded p-3")
             ], label="Code snippet", tab_id="tab-2"),
             
             # Requirements tab

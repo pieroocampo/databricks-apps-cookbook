@@ -76,7 +76,12 @@ def layout():
                     ]),
                     dbc.Button("Load Table", id="load-button-edit", color="primary", className="mb-4", size="md")
                 ], className="mt-3"),
-                html.Div(id="table-editor", className="mt-3"),
+                dbc.Spinner(
+                    html.Div(id="table-editor", className="mt-3"),
+                    color="primary",
+                    type="border",
+                    fullscreen=False,
+                ),
                 dbc.Button("Save Changes", id="save-button-edit", color="success", className="mt-3 d-none", size="md"),
                 html.Div(id="status-area-edit", className="mt-3")
             ], className="p-3"),
@@ -169,9 +174,32 @@ def load_table_data_edit(n_clicks, http_path, table_name):
             columns=[{'name': i, 'id': i, 'editable': True} for i in df.columns],
             editable=True,
             row_deletable=True,
-            style_table={'overflowX': 'auto'},
-            style_cell={'textAlign': 'left'},
-            style_header={'fontWeight': 'bold'}
+            style_table={
+                'overflowX': 'auto',
+                'minWidth': '100%',
+            },
+            style_header={
+                'backgroundColor': '#f8f9fa',
+                'fontWeight': 'bold',
+                'border': '1px solid #dee2e6',
+                'padding': '12px 15px'
+            },
+            style_cell={
+                'padding': '12px 15px',
+                'textAlign': 'left',
+                'border': '1px solid #dee2e6',
+                'maxWidth': '200px',
+                'overflow': 'hidden',
+                'textOverflow': 'ellipsis'
+            },
+            style_data={
+                'whiteSpace': 'normal',
+                'height': 'auto',
+            },
+            page_size=10,
+            page_action='native',
+            sort_action='native',
+            sort_mode='multi',
         )
         return table, "mt-3", None
     except Exception as e:

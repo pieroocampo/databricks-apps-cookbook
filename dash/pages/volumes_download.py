@@ -143,7 +143,7 @@ def handle_file_download(n_clicks, file_path):
             download=file_name
         )
         
-        return download_link, dbc.Alert(f"File '{file_name}' downloaded successfully", 
+        return download_link, dbc.Alert(f"File '{file_name}' is ready for download", 
                                       color="success")
     except Exception as e:
         return None, dbc.Alert(f"Error downloading file: {str(e)}", color="danger")

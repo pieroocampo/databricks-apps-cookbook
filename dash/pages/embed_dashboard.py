@@ -5,13 +5,12 @@ import dash
 # pages/embed_dashboard.py
 dash.register_page(
     __name__,
-    path='/data-visualization/embed-dashboard',
-    title='Embed Dashboard',
-    name='Embed Dashboard',
-    category='Data Visualization',
+    path='/genie/api',
+    title='Genie API',
+    name='AI/BI Dashboard',
+    category='Business Intelligence',
     icon='material-symbols:dashboard'
 )
-
 def layout():
     return dbc.Container([
         html.H1("Data Visualization", className="my-4"),

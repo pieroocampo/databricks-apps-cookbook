@@ -90,7 +90,12 @@ layout = dbc.Container([
                     size="md"
                 )
             ], className="mt-3"),
-            html.Div(id="table-area-read", className="mt-3"),
+            dbc.Spinner(
+                html.Div(id="table-area-read", className="mt-3"),
+                color="primary",
+                type="border",
+                fullscreen=False,
+            ),
             html.Div(id="status-area-read", className="mt-3")
         ], className="p-3"),
         
@@ -158,7 +163,8 @@ df = read_table(table_name, conn)
     Input("load-button-read", "n_clicks"),
     [State("http-path-input", "value"),
      State("table-name-input", "value")],
-    prevent_initial_call=True
+    prevent_initial_call=True,
+    loading_state={'type': 'default', 'component_name': 'table-load'}
 )
 def load_table_data_read(n_clicks, http_path, table_name):
     print(f"Input values: http_path={http_path}, table_name={table_name}")  # Debug print
@@ -178,14 +184,33 @@ def load_table_data_read(n_clicks, http_path, table_name):
         table = dash.dash_table.DataTable(
             data=df.to_dict('records'),
             columns=[{'name': i, 'id': i} for i in df.columns],
-            style_table={'overflowX': 'auto'},
+            style_table={
+                'overflowX': 'auto',
+                'minWidth': '100%',
+            },
+            style_header={
+                'backgroundColor': '#f8f9fa',
+                'fontWeight': 'bold',
+                'border': '1px solid #dee2e6',
+                'padding': '12px 15px'
+            },
             style_cell={
-                'minWidth': '100px',
-                'maxWidth': '300px',
+                'padding': '12px 15px',
+                'textAlign': 'left',
+                'border': '1px solid #dee2e6',
+                'maxWidth': '200px',
                 'overflow': 'hidden',
                 'textOverflow': 'ellipsis'
             },
-            page_size=10
+            style_data={
+                'whiteSpace': 'normal',
+                'height': 'auto',
+            },
+    
+            page_size=10,
+            page_action='native',
+            sort_action='native',
+            sort_mode='multi'
         )
         return table, dbc.Alert("Table loaded successfully!", color="success", dismissable=True)
     except Exception as e:
