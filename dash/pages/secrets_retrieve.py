@@ -143,5 +143,4 @@ def update_output(n_clicks, scope, key):
         color="danger"
     )
 
-# Make layout available at module level
 __all__ = ['layout']

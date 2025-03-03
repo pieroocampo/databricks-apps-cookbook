@@ -38,15 +38,15 @@ def layout():
                             dbc.Col([
                                 html.P([
                                     html.Strong("E-mail: "), 
-                                    html.Span(id="user-email")
+                                    html.Span(id="user-email-current")
                                 ]),
                                 html.P([
                                     html.Strong("Username: "), 
-                                    html.Span(id="user-name")
+                                    html.Span(id="user-name-current")
                                 ]),
                                 html.P([
                                     html.Strong("IP Address: "), 
-                                    html.Span(id="user-ip")
+                                    html.Span(id="user-ip-current")
                                 ])
                             ])
                         ]),
@@ -55,10 +55,14 @@ def layout():
                     ),
                     html.H4("All Headers", className="mt-4 mb-3"),
                     dbc.Spinner(
-                        html.Pre(id="all-headers", style={
+                        html.Pre(id="all-headers-current", style={
                             'backgroundColor': '#f8f9fa',
                             'padding': '1rem',
-                            'borderRadius': '0.25rem'
+                            'borderRadius': '0.25rem',
+                            'maxHeight': '400px',
+                            'overflowY': 'auto',
+                            'whiteSpace': 'pre-wrap',
+                            'wordBreak': 'break-word'
                         }),
                         color="primary",
                         type="border",
@@ -108,20 +112,24 @@ print(f"E-mail: {email}, username: {username}, user: {user}, ip: {ip}")
     ], fluid=True, className="py-4")
 
 @callback(
-    [Output("user-email", "children"),
-     Output("user-name", "children"),
-     Output("user-ip", "children"),
-     Output("all-headers", "children")],
-    Input("tabs", "active_tab")
+    [Output("user-email-current", "children"),
+     Output("user-name-current", "children"),
+     Output("user-ip-current", "children"),
+     Output("all-headers-current", "children")],
+    Input("tabs", "active_tab"),
 )
 def update_user_info(tab):
     headers = dict(request.headers)
-    return (
-        headers.get("X-Forwarded-Email", "Not available"),
-        headers.get("X-Forwarded-Preferred-Username", "Not available"),
-        headers.get("X-Real-Ip", "Not available"),
-        str(headers)
-    )
+    
+    # Get specific user details from headers
+    email = headers.get('X-Databricks-Useremail', 'Not available')
+    username = headers.get('X-Databricks-Username', 'Not available')
+    ip = request.remote_addr or 'Not available'
+    
+    # Format all headers for display
+    all_headers = "\n".join([f"{k}: {v}" for k, v in headers.items()])
+    
+    return email, username, ip, all_headers
 
 # Make layout available at module level
 __all__ = ['layout']
