@@ -45,6 +45,10 @@ def layout():
                                     html.Span(id="user-name-current")
                                 ]),
                                 html.P([
+                                    html.Strong("User: "), 
+                                    html.Span(id="user-user-current")
+                                ]),
+                                html.P([
                                     html.Strong("IP Address: "), 
                                     html.Span(id="user-ip-current")
                                 ])
@@ -114,6 +118,7 @@ print(f"E-mail: {email}, username: {username}, user: {user}, ip: {ip}")
 @callback(
     [Output("user-email-current", "children"),
      Output("user-name-current", "children"),
+     Output("user-user-current", "children"),
      Output("user-ip-current", "children"),
      Output("all-headers-current", "children")],
     Input("tabs", "active_tab"),
@@ -122,14 +127,15 @@ def update_user_info(tab):
     headers = dict(request.headers)
     
     # Get specific user details from headers
-    email = headers.get('X-Databricks-Useremail', 'Not available')
-    username = headers.get('X-Databricks-Username', 'Not available')
-    ip = request.remote_addr or 'Not available'
+    email = headers.get("X-Forwarded-Email", 'Not available')
+    username = headers.get("X-Forwarded-Preferred-Username", 'Not available')
+    user  = headers.get("X-Forwarded-User", 'Not available')
+    ip = headers.get("X-Real-Ip", 'Not available')
     
     # Format all headers for display
     all_headers = "\n".join([f"{k}: {v}" for k, v in headers.items()])
     
-    return email, username, ip, all_headers
+    return email, username, user, ip, all_headers
 
 # Make layout available at module level
 __all__ = ['layout']
