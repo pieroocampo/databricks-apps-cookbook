@@ -18,10 +18,10 @@ w = WorkspaceClient()
 
 def get_secret(scope, key):
     try:
-        w.secrets.get_secret(scope=scope, key=key)
-        return True
+        secret = w.secrets.get_secret(scope=scope, key=key)
+        return secret
     except Exception:
-        return False
+        return None
 
 def layout():
     return dbc.Container([
@@ -133,7 +133,8 @@ def update_output(n_clicks, scope, key):
     if not all([scope, key]):
         return dbc.Alert("Please fill in all fields", color="warning")
     
-    if get_secret(scope, key):
+    secret = get_secret(scope, key)
+    if secret is not None:
         return dbc.Alert(
             "Secret retrieved! The value is securely handled in the backend.",
             color="success"
