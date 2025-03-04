@@ -7,7 +7,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 * Deploy to Databricks Apps or run locally.
 * Snippets for both **Dash and Streamlit** are available.
 
-![Cookbook](assets/cookbook.png)
+![Cookbook](cookbook.png)
 
 > [!WARNING]  
 > This code sample is experimental and not intended for production use. It is a personal project provided by the contributors and not by Databricks.
