@@ -5,7 +5,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 * **Try recipes in the Cookbook app** and simply copy a code snippet to build your own.
 * **Description of requirements** (permissions, resources, dependencies) for each recipe.
 * Deploy to Databricks Apps or run locally.
-* Snippets use Streamlit components but can easily be adapted to other Python frameworks.
+* Snippets for both Dash and Streamlit are available.
 
 ![Cookbook](assets/cookbook.png)
 
@@ -13,14 +13,14 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 > This code sample is experimental and not intended for production use. It is a personal project provided by the contributors and not by Databricks.
 
 ## Deploy to Databricks
-1. [Fork this Git repository](https://docs.github.com/de/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) to your own GitHub account.
-1. [Load the cloned repository as a Databricks Git folder](https://docs.databricks.com/en/repos/index.html) in your Databricks workspace.
+1. [Load this repository as a Databricks Git folder](https://docs.databricks.com/en/repos/index.html) in your Databricks workspace.
 1. In your Databricks workspace, switch to **Compute** -> **Apps**.
 1. Choose **Create app**.
 1. Under **Choose how to start**, select **Custom** and choose **Next**.
 1. Provide a name for your app and choose **Create app**.
 1. Once your app compute has started, choose **Deploy**.
-1. Select your new Git folder and choose **Deploy**.
+1. Navigate to your new Git folder and select either the `dash` or `streamlit` folder.
+1. Choose **Deploy**.
 
 > [!IMPORTANT]  
 > Check the Requirements tab of each recipe to understand what [service principal permissions](https://docs.databricks.com/en/dev-tools/databricks-apps/app-development.html#configure-resources), Databricks resources, and Python packages are required to use it.
@@ -31,8 +31,9 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    git clone https://github.com/pbv0/databricks-apps-cookbook.git
    cd databricks-apps-cookbook
    ```
-1. Create and activate a Python virtual environment using [`venv`](https://docs.python.org/3/library/venv.html):
+1. Navigate to the sub-folder for the cookbook framework you want to run (either `dash` or `streamlit`). Create and activate a Python virtual environment in this folder [`venv`](https://docs.python.org/3/library/venv.html). We recommend using separate environments for each framework:
    ```bash
+   cd streamlit
    python3 -m venv .venv
    source .venv/bin/activate
    ```
@@ -48,9 +49,14 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    ```bash
    export DATABRICKS_HOST=https://my-workspace.cloud.databricks.com/
    ```
-1. Run the Cookbook app locally:
+1. Run the Cookbook app locally (make sure your virtual environment is activated).
+   Streamlit:
    ```bash
    streamlit run app.py
+   ```
+   Dash:
+   ```bash
+   python app.py
    ```
 
 > [!IMPORTANT]  
@@ -60,4 +66,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 We welcome contributions! Submit a [pull request](https://github.com/pbv0/databricks-apps-cookbook/pulls) to add or improve recipes. Check out the roadmap below for inspiration. Raise an [issue](https://github.com/pbv0/databricks-apps-cookbook/issues) to report a bug or raise a feature request.
 
 ## Roadmap / recipes wanted
-
+* Display coordinates from a Delta table in a map component
+* Display data from a Delta table in Streamlit/Dash-native diagram components
+* Gradio implementation
+* Flask implementation

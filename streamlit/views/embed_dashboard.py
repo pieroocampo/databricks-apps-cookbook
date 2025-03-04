@@ -14,17 +14,12 @@ tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements
 with tab_a:
     iframe_source = st.text_input(
         "Embed the dashboard:",
-        placeholder="https://workspace.azuredatabricks.net/embed/dashboardsv3/dashboard-id",
+        placeholder="https://dbc-f0e9b24f-3d49.cloud.databricks.com/embed/dashboardsv3/01eff8112e9411cd930f0ae0d2c6b63d?o=37581543725667790",
         help="Copy and paste the URL from the dashboard UI Share -> Embed iframe.",
     )
 
     if iframe_source:
-        components.iframe(
-        src=iframe_source,
-        width=700,
-        height=600,
-        scrolling=True
-)
+        components.iframe(src=iframe_source, width=700, height=600, scrolling=True)
 
 with tab_b:
     st.code(
@@ -60,3 +55,8 @@ with tab_c:
                     **Dependencies**
                     * [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
                     """)
+
+    st.warning(
+        "A workspace admin needs to enable dashboard embedding in the Security settings of your Databricks workspace for specific domains (e.g., databricksapps.com) or all domains for this sample to work.",
+        icon="⚠️",
+    )
