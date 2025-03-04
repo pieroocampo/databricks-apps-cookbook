@@ -5,7 +5,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
 * **Try recipes in the Cookbook app** and simply copy a code snippet to build your own.
 * **Description of requirements** (permissions, resources, dependencies) for each recipe.
 * Deploy to Databricks Apps or run locally.
-* Snippets for both Dash and Streamlit are available.
+* Snippets for both **Dash and Streamlit** are available.
 
 ![Cookbook](assets/cookbook.png)
 
