@@ -50,6 +50,7 @@ Ready-to-use code snippets for building interactive data applications using [Dat
    export DATABRICKS_HOST=https://my-workspace.cloud.databricks.com/
    ```
 1. Run the Cookbook app locally (make sure your virtual environment is activated).
+   
    Streamlit:
    ```bash
    streamlit run app.py
