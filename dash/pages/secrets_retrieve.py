@@ -1,3 +1,4 @@
+import base64
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from databricks.sdk import WorkspaceClient
@@ -18,8 +19,9 @@ w = WorkspaceClient()
 
 def get_secret(scope, key):
     try:
-        secret = w.secrets.get_secret(scope=scope, key=key)
-        return secret
+        secret_response = w.secrets.get_secret(scope=scope, key=key)
+        decoded_secret = base64.b64decode(secret_response.value).decode('utf-8')
+        return decoded_secret
     except Exception:
         return None
 
