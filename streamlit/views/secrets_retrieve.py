@@ -1,3 +1,4 @@
+import base64
 import streamlit as st
 from databricks.sdk import WorkspaceClient
 
@@ -7,7 +8,9 @@ w = WorkspaceClient()
 
 def get_secret(scope, key):
     try:
-        w.secrets.get_secret(scope=scope, key=key)
+        secret_response = w.secrets.get_secret(scope=scope, key=key)
+        decoded_secret = base64.b64decode(secret_response.value).decode('utf-8')
+        return decoded_secret
     except Exception as e:
         st.error(
             "Secret not found or inaccessible. Please create a secret scope and key before retrieving."
@@ -24,10 +27,10 @@ tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements
 
 with tab_a:
     scope_name = st.text_input("Secret scope", placeholder="apis")
-    secret_key = st.text_input("Secret name (key)", placeholder="weather_service_key")
+    secret_key = st.text_input("Secret key", placeholder="weather_service_key")
 
     if st.button("Retrieve"):
-        _ = get_secret(scope_name, secret_key)
+        secret = get_secret(scope_name, secret_key)
         st.success("Secret retrieved! The value is securely handled in the backend.")
 
 
