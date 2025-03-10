@@ -1,0 +1,34 @@
+---
+sidebar_position: 1
+---
+
+# Get current user
+
+This recipe gets information about the user accessing this Databricks App from their [HTTP headers](https://docs.databricks.com/en/dev-tools/databricks-apps/app-development.html#what-http-headers-are-passed-to-databricks-apps).
+
+## Code snippet
+
+```python title="app.py"
+import streamlit as st
+
+headers = st.context.headers
+email = headers.get("X-Forwarded-Email")
+username = headers.get("X-Forwarded-Preferred-Username")
+user  = headers.get("X-Forwarded-User")
+ip = headers.get("X-Real-Ip")
+
+st.write(f"E-mail: {email}, username: {username}, user: {user}, ip: {ip}")
+```
+
+## Permissions
+
+No permissions configuration required.
+
+## Dependencies
+
+* [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+
+```python title="requirements.txt"
+streamlit
+```
+
