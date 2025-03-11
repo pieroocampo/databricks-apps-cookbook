@@ -55,6 +55,7 @@ with col_c:
     st.markdown(
         """
         #### Blog posts
-        - [Databricks Apps with React and FastAPI](https://www.linkedin.com/pulse/building-data-applications-databricks-apps-ivan-trusov-6pjwf/)
+        - [End-to-end RAG application with source retriveal on Databricks Platform](https://www.linkedin.com/pulse/end-to-end-rag-application-source-retriveal-platform-ivan-trusov-znvqf/)
+        - [Building data applications with Databricks Apps](https://www.linkedin.com/pulse/building-data-applications-databricks-apps-ivan-trusov-6pjwf/)
         """
     )
