@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Edit a table
 
-Use this recipe to **read, edit, and write back data ina Unity Catalog table** using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html).
+Use this recipe to read, edit, and write back data in a [Unity Catalog table](https://docs.databricks.com/aws/en/tables/) using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html).
 
 ## Code snippet
 
@@ -13,6 +13,7 @@ import pandas as pd
 import streamlit as st
 from databricks import sql
 from databricks.sdk.core import Config
+
 
 cfg = Config() # Set the DATABRICKS_HOST environment variable when running locally
 
@@ -74,15 +75,17 @@ This sample uses Streamlit's [st.cache_resource](https://docs.streamlit.io/devel
 
 ## Resources
 
-- SQL warehouse
-- Unity Catalog table
+- [SQL warehouse](https://docs.databricks.com/aws/en/compute/sql-warehouse/)
+- [Unity Catalog table](https://docs.databricks.com/aws/en/tables/)
 
 ## Permissions
 
-Your app service principal needs the following permissions:
+Your [app service principal](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/#how-does-databricks-apps-manage-authorization) needs the following permissions:
 
 - `MODIFY` on the Unity Catalog table
 - `CAN USE` on the SQL warehouse
+
+See Unity [Catalog privileges and securable objects](https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges) for more information.
 
 ## Dependencies
 

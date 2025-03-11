@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Read a table
 
-This recipe **reads a Unity Catalog table** using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html).
+This recipe reads a [Unity Catalog table](https://docs.databricks.com/aws/en/tables/) using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html).
 
 ## Code snippet
 
@@ -16,7 +16,7 @@ from databricks.sdk.core import Config
 
 cfg = Config()  # Set the DATABRICKS_HOST environment variable when running locally
 
-# highlight-start
+
 @st.cache_resource # connection is cached
 def get_connection(http_path):
     return sql.connect(
@@ -30,7 +30,6 @@ def read_table(table_name, conn):
         query = f"SELECT * FROM {table_name}"
         cursor.execute(query)
         return cursor.fetchall_arrow().to_pandas()
-# highlight-end
 
 http_path_input = st.text_input(
     "Enter your Databricks HTTP Path:", placeholder="/sql/1.0/warehouses/xxxxxx"
@@ -41,10 +40,8 @@ table_name = st.text_input(
 )
 
 if http_path_input and table_name:
-    # highlight-start
     conn = get_connection(http_path_input)
     df = read_table(table_name, conn)
-    # highlight-end
     st.dataframe(df)
 ```
 
@@ -56,15 +53,17 @@ This sample uses Streamlit's [st.cache_resource](https://docs.streamlit.io/devel
 
 ## Resources
 
-- SQL warehouse
-- Unity Catalog table
+- [SQL warehouse](https://docs.databricks.com/aws/en/compute/sql-warehouse/)
+- [Unity Catalog table](https://docs.databricks.com/aws/en/tables/)
 
 ## Permissions
 
-Your app service principal needs the following permissions:
+Your [app service principal](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/#how-does-databricks-apps-manage-authorization) needs the following permissions:
 
 - `SELECT` on the Unity Catalog table
 - `CAN USE` on the SQL warehouse
+
+See Unity [Catalog privileges and securable objects](https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges) for more information.
 
 ## Dependencies
 

@@ -10,31 +10,26 @@ This recipe uploads a file to a [Unity Catalog volume](https://docs.databricks.c
 
 ```python title="app.py"
 import io
-import streamlit as st
 from databricks.sdk import WorkspaceClient
 
 w = WorkspaceClient()
 
-uploaded_file = st.file_uploader(label="Select file")
+# Read file into bytes
+with open("local_file.csv", "rb") as f:
+    file_bytes = f.read()
+binary_data = io.BytesIO(file_bytes)
 
-upload_volume_path = st.text_input(
-    label="Specify a three-level Unity Catalog volume name (catalog.schema.volume_name)",
-    placeholder="main.marketing.raw_files",
-)
+# Specify volume path and upload
+volume_path = "main.marketing.raw_files"
 
-if st.button("Save changes"):
-    file_bytes = uploaded_file.read()
-    binary_data = io.BytesIO(file_bytes)
-    file_name = uploaded_file.name
+parts = volume_path.strip().split(".")
 
-    parts = upload_volume_path.strip().split(".")
+catalog = parts[0]
+schema = parts[1]
+volume_name = parts[2]
 
-    catalog = parts[0]
-    schema = parts[1]
-    volume_name = parts[2]
-
-    volume_file_path = f"/Volumes/{catalog}/{schema}/{volume_name}/{file_name}"
-    w.files.upload(volume_file_path, binary_data, overwrite=True)
+volume_file_path = f"/Volumes/{catalog}/{schema}/{volume_name}/local_file.csv"
+w.files.upload(volume_file_path, binary_data, overwrite=True)
 ```
 
 ## Resources
@@ -54,9 +49,9 @@ See [Privileges required for volume operations](https://docs.databricks.com/en/v
 ## Dependencies
 
 - [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
-- [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+- [Dash](https://pypi.org/project/dash/) - `dash`
 
 ```python title="requirements.txt"
 databricks-sdk
-streamlit
+dash
 ```

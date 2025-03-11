@@ -9,15 +9,14 @@ This recipe gets information about the user accessing this Databricks App from t
 ## Code snippet
 
 ```python title="app.py"
-import streamlit as st
+from flask import request
 
-headers = st.context.headers
+headers = request.headers
 email = headers.get("X-Forwarded-Email")
 username = headers.get("X-Forwarded-Preferred-Username")
-user  = headers.get("X-Forwarded-User")
+user = headers.get("X-Forwarded-User")
 ip = headers.get("X-Real-Ip")
-
-st.write(f"E-mail: {email}, username: {username}, user: {user}, ip: {ip}")
+print(f"E-mail: {email}, username: {username}, user: {user}, ip: {ip}")
 ```
 
 ## Permissions
@@ -26,8 +25,8 @@ No permissions configuration required.
 
 ## Dependencies
 
-- [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+- [Dash](https://pypi.org/project/dash/) - `dash`
 
 ```python title="requirements.txt"
-streamlit
+dash
 ```

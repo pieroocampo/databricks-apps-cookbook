@@ -34,7 +34,7 @@ function HomepageHeader() {
               Dash
             </button>
           </Link>
-          <Link to="/docs/category/dash">
+          <Link to="/docs/intro">
             <button className="border-2 border-gray-800 bg-transparent px-8 py-2.5 align-middle text-lg font-semibold text-gray-800 hover:cursor-pointer hover:underline dark:border-white dark:text-white">
               Learn more
             </button>

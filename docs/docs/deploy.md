@@ -4,11 +4,17 @@ sidebar_position: 2
 
 # Deployment instructions
 
-This code sample is experimental and not intended for production use. It is a personal project provided by the contributors and not by Databricks.
+Follow these instructions to deploy the interactive examples to your Databricks workspace or to run them locally.
+
+:::warning
+
+These samples are experimental and meant for demonstration purposes only. Ensure your organization's security, compliance, and operational best practices are applied before deploying them to production.
+
+:::
 
 ## Deploy to Databricks
 
-1. [Load this repository as a Databricks Git folder](https://docs.databricks.com/en/repos/index.html) in your Databricks workspace.
+1. Navigate to the [databricks-apps-cookbook](https://github.com/pbv0/databricks-apps-cookbook) GitHub repository and [load it a Databricks Git folder](https://docs.databricks.com/en/repos/index.html) in your Databricks workspace.
 1. In your Databricks workspace, switch to **Compute** -> **Apps**.
 1. Choose **Create app**.
 1. Under **Choose how to start**, select **Custom** and choose **Next**.
@@ -25,7 +31,7 @@ Check the Requirements tab of each recipe to understand what [service principal 
 
 ## Run locally
 
-1. [Clone this repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) to your local machine and switch into the `databricks-apps-cookbook` folder:
+1. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) the [databricks-apps-cookbook](https://github.com/pbv0/databricks-apps-cookbook) GitHub repository or your fork to your local machine and switch into the `databricks-apps-cookbook` folder:
    ```bash
    git clone https://github.com/pbv0/databricks-apps-cookbook.git
    cd databricks-apps-cookbook
@@ -48,7 +54,7 @@ Check the Requirements tab of each recipe to understand what [service principal 
    ```bash
    export DATABRICKS_HOST=https://my-workspace.cloud.databricks.com/
    ```
-1. Run the Cookbook app locally (make sure your virtual environment is activated).
+1. Run the cookbook app locally (make sure your virtual environment is activated).
 
    Streamlit:
 

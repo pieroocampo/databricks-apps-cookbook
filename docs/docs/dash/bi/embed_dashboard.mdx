@@ -9,14 +9,15 @@ This recipe embeds a [Databricks AI/BI dashboard](https://docs.databricks.com/aw
 ## Code snippet
 
 ```python title="app.py"
-import streamlit.components.v1 as components
+from dash import html
 
 iframe_source = "https://workspace.azuredatabricks.net/embed/dashboardsv3/dashboard-id"
 
-components.iframe(
+html.Iframe(
     src=iframe_source,
-    height=600,
-    scrolling=True
+    width="700px",
+    height="600px",
+    style={"border": "none"}
 )
 ```
 
@@ -44,8 +45,8 @@ A workspace admin needs to enable dashboard embedding in the Security settings o
 
 ## Dependencies
 
-- [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+- [Dash](https://pypi.org/project/dash/) - `dash`
 
 ```python title="requirements.txt"
-streamlit
+dash
 ```

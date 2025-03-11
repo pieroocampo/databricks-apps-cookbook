@@ -10,37 +10,27 @@ This recipe uses [Databricks Connect](https://docs.databricks.com/en/dev-tools/d
 
 ```python title="app.py"
 import os
-import streamlit as st
 from databricks.connect import DatabricksSession
 
-cluster_id = st.text_input(
-    "Specify cluster id:",
-    placeholder="0709-132523-cnhxf2p6",
-    help="Copy a shared Compute [cluster ID](https://docs.databricks.com/en/workspace/workspace-details.html#cluster-url-and-id) to connect to.",
-)
-
-if cluster_id:
-    spark = connect_to_cluster(cluster_id)
-    st.success("Successfully connected to Spark:", icon="✅")
-    session_info = {
-            "App Name": spark.conf.get("spark.app.name", "Unknown"),
-            "Master URL": spark.conf.get("spark.master", "Unknown"),
-        }
-    st.json(session_info)
+cluster_id = "0709-132523-cnhxf2p6"
 
 spark = DatabricksSession.builder.remote(
     host=os.getenv("DATABRICKS_HOST"),
     cluster_id=cluster_id
 ).getOrCreate()
 
-query = "SELECT 'I'm a stellar cook!' AS message"
-sql_output = spark.sql(query).toPandas()
+# SQL operations example
+a = "(VALUES (1, 'A1'), (2, 'A2'), (3, 'A3')) AS a(id, value)"
+b = "(VALUES (2, 'B1'), (3, 'B2'), (4, 'B3')) AS b(id, value)"
 
-st.dataframe(sql_output)
+# Inner join example
+query = f"SELECT a.id, a.value AS value_a, b.value AS value_b FROM {a} INNER JOIN {b} ON a.id = b.id"
+result = spark.sql(query).toPandas()
+print(result)
 
+# Generate sequence
 result = spark.range(10).toPandas()
-
-st.dataframe(result)
+print(result)
 ```
 
 :::info
@@ -64,9 +54,9 @@ See [Compute permissions](https://docs.databricks.com/aws/en/compute/clusters-ma
 ## Dependencies
 
 - [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
-- [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+- [Dash](https://pypi.org/project/dash/) - `dash`
 
 ```python title="requirements.txt"
 databricks-sdk
-streamlit
+dash
 ```

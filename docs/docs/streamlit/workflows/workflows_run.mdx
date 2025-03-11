@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Run a workflow
 
-This recipe triggers a [Databricks Workflows](https://docs.databricks.com/en/jobs/index.html) job.
+This recipe triggers a [Databricks Workflows](https://docs.databricks.com/en/jobs/index.html) job using the [Databricks SDK for Python](https://databricks-sdk-py.readthedocs.io/en/latest/).
 
 ## Code snippet
 
@@ -37,20 +37,20 @@ if st.button(label="Trigger job"):
 
 ## Resources
 
-* Job
+- [Job](https://docs.databricks.com/aws/en/jobs/configure-job)
 
 ## Permissions
 
-Your app service principal needs the following permissions:
+Your [app service principal](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/#how-does-databricks-apps-manage-authorization) needs the following permissions:
 
-* `CAN MANAGE RUN` permission on the job
+- `CAN MANAGE RUN` permission on the job
 
 See [Control access to a job](https://docs.databricks.com/en/jobs/privileges.html#control-access-to-a-job) for more information.
 
 ## Dependencies
 
-* [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
-* [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+- [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
+- [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
 
 ```python title="requirements.txt"
 databricks-sdk

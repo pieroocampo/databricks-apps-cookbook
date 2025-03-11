@@ -9,19 +9,14 @@ This recipe retreives the results of a [Databricks Workflows](https://docs.datab
 ## Code snippet
 
 ```python title="app.py"
-import streamlit as st
 from databricks.sdk import WorkspaceClient
 
 w = WorkspaceClient()
 
-task_run_id = st.text_input(
-    label="Specify a task run ID",
-    placeholder="293894477334278",
-)
-
+task_run_id = "293894477334278"
 results = w.jobs.get_run_output(task_run_id)
 
-st.text(results)
+print(results)
 ```
 
 ## Resources
@@ -39,9 +34,9 @@ See [Control access to a job](https://docs.databricks.com/en/jobs/privileges.htm
 ## Dependencies
 
 - [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
-- [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+- [Dash](https://pypi.org/project/dash/) - `dash`
 
 ```python title="requirements.txt"
 databricks-sdk
-streamlit
+dash
 ```
