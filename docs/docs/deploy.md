@@ -8,7 +8,7 @@ Follow these instructions to deploy the interactive examples to your Databricks 
 
 :::warning
 
-These samples are experimental and meant for demonstration purposes only. Ensure your organization's security, compliance, and operational best practices are applied before deploying them to production.
+These samples are experimental and meant for demonstration purposes only. They are provided as-is and without formal support by Databricks. Ensure your organization's security, compliance, and operational best practices are applied before deploying them to production.
 
 :::
 
