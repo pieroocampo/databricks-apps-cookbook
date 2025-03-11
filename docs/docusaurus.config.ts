@@ -52,7 +52,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: "og-image.png",
+    image: "img/og-image.png",
     metadata: [
       {
         name: "keywords",
