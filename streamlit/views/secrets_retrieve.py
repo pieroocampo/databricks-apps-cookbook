@@ -9,7 +9,7 @@ w = WorkspaceClient()
 def get_secret(scope, key):
     try:
         secret_response = w.secrets.get_secret(scope=scope, key=key)
-        decoded_secret = base64.b64decode(secret_response.value).decode('utf-8')
+        decoded_secret = base64.b64decode(secret_response.value).decode("utf-8")
         return decoded_secret
     except Exception as e:
         st.error(
@@ -43,8 +43,9 @@ with tab_b:
 
     def get_secret(scope, key):
         try:
-            secret = w.secrets.get_secret(scope=scope, key=key)
-            return secret
+            secret_response = w.secrets.get_secret(scope=scope, key=key)
+            decoded_secret = base64.b64decode(secret_response.value).decode('utf-8')
+            return decoded_secret
         except Exception as e:
             st.error("Secret not found or inaccessible. Please create a secret scope and key before retrieving.")
 
