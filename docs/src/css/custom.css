@@ -30,6 +30,9 @@
   --ifm-footer-background-color: #f9f7f4;
 
   --ifm-button-border-radius: 0;
+  --ifm-card-border-radius: 0;
+  --ifm-pagination-nav-border-radius: 0;
+  --ifm-code-border-radius: 0;
 
   --ifm-button-color: white;
 

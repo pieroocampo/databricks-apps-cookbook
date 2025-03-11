@@ -52,6 +52,16 @@ const config: Config = {
   ],
 
   themeConfig: {
+    metadata: [
+      {
+        name: "og:image",
+        content: "og-image.png",
+      },
+      {
+        name: "keywords",
+        content: "databricks, databricks apps, streamlit, dash",
+      },
+    ],
     navbar: {
       title: "Databricks Apps Cookbook",
       items: [
