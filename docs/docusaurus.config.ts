@@ -52,11 +52,8 @@ const config: Config = {
   ],
 
   themeConfig: {
+    image: "og-image.png",
     metadata: [
-      {
-        name: "og:image",
-        content: "og-image.png",
-      },
       {
         name: "keywords",
         content: "databricks, databricks apps, streamlit, dash",
