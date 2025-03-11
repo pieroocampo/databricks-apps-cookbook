@@ -7,6 +7,7 @@
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 @theme {
+  --breakpoint-xs: 25rem;
   --color-lava-700: #c81f0d;
   --color-lava-600: #ff3621;
   --color-lava-500: #ff7364;
@@ -28,6 +29,8 @@
   --ifm-background-color: #eeede9;
   --ifm-navbar-background-color: #f9f7f4;
   --ifm-footer-background-color: #f9f7f4;
+
+  --ifm-footer-padding-vertical: 1.25rem;
 
   --ifm-button-border-radius: 0;
   --ifm-card-border-radius: 0;
@@ -57,4 +60,10 @@
   --ifm-footer-title-color: var(--ifm-navbar-link-color);
 
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+@media screen and (max-width: 25rem) {
+  footer {
+    display: none;
+  }
 }

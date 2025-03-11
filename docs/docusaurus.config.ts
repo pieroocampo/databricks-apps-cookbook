@@ -88,7 +88,7 @@ const config: Config = {
       ],
     },
     footer: {
-      copyright: `Copyright © ${new Date().getFullYear()} Databricks Apps Cookbook.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Databricks Apps Cookbook`,
     },
     prism: {
       theme: prismThemes.vsLight,
