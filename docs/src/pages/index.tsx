@@ -24,19 +24,19 @@ function HomepageHeader() {
         <p className="mt-2 max-w-3xl text-gray-800 xs:text-xl md:mt-4 md:text-3xl md:leading-10 dark:text-white">
           {siteConfig.tagline}
         </p>
-        <div className="mt-2 flex w-full flex-col items-center justify-center space-y-4 space-x-0 align-middle sm:w-auto md:mt-4 md:flex-row md:space-y-0 md:space-x-8">
+        <div className="mt-2 flex w-full flex-col items-center justify-center space-y-4 sm:w-auto md:mt-4 md:flex-row md:space-y-0 md:space-x-8">
           <Link to="/docs/category/streamlit" className="w-full md:w-auto">
-            <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg md:flex-1">
+            <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg md:w-auto md:flex-1">
               Streamlit
             </button>
           </Link>
           <Link to="/docs/category/dash" className="w-full md:w-auto">
-            <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg md:flex-1">
+            <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg md:w-auto md:flex-1">
               Dash
             </button>
           </Link>
           <Link to="/docs/intro" className="w-full md:w-auto">
-            <button className="w-full border-2 border-gray-800 bg-transparent px-8 py-2.5 align-middle font-semibold text-gray-800 hover:cursor-pointer hover:underline xs:text-lg md:flex-1 dark:border-white dark:text-white">
+            <button className="w-full border-2 border-gray-800 bg-transparent px-8 py-2.5 align-middle font-semibold text-gray-800 hover:cursor-pointer hover:underline xs:text-lg md:w-auto md:flex-1 dark:border-white dark:text-white">
               Learn more
             </button>
           </Link>
