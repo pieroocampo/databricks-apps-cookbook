@@ -4,6 +4,7 @@ from databricks.sdk.service.dashboards import GenieMessage
 import pandas as pd
 from typing import Dict
 
+
 w = WorkspaceClient()
 
 st.header("Genie", divider=True)
@@ -22,6 +23,8 @@ with tab_a:
     genie_space_id = st.text_input(
         "Genie Space ID", placeholder="01efe16a65e21836acefb797ae6a8fe4", help="Room ID in the Genie Space URL"
     )
+    st.session_state.genie_space_id = genie_space_id
+
 
     def display_message(message: Dict):
         if "content" in message:
@@ -32,12 +35,19 @@ with tab_a:
             with st.expander("Show generated code"):
                 st.code(message["code"], language="sql", wrap_lines=True)
 
-    def get_query_result(statement_id: str) -> pd.DataFrame:
-        query = w.statement_execution.get_statement(statement_id)
 
-        return pd.DataFrame(
-            query.result.data_array, columns=[i.name for i in query.manifest.schema.columns]
-        )
+    def get_query_result(statement_id: str) -> pd.DataFrame:     
+        query = w.statement_execution.get_statement(statement_id)
+        result = query.result.data_array
+
+        next_chunk = query.result.next_chunk_index
+        while next_chunk:
+            chunk = w.statement_execution.get_statement_result_chunk_n(statement_id, next_chunk)
+            result.append(chunk.data_array)
+            next_chunk = chunk.next_chunk_index
+
+        return pd.DataFrame(result, columns=[i.name for i in query.manifest.schema.columns])
+
 
     def process_genie_response(response: GenieMessage):
         st.session_state.conversation_id = response.conversation_id
@@ -55,12 +65,14 @@ with tab_a:
                 display_message(message)
                 st.session_state.messages.append(message)
 
+
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            display_message(message)
+    if st.session_state.genie_space_id == genie_space_id:
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                display_message(message)
 
     if prompt := st.chat_input("Ask your question..."):
         st.chat_message("user").markdown(prompt)
@@ -71,7 +83,7 @@ with tab_a:
                 status = st.status("Working...")
                 if st.session_state.get("conversation_id"):
                     conversation = w.genie.create_message_and_wait(
-                        genie_space_id, st.session_state["conversation_id"], prompt
+                        genie_space_id, st.session_state.conversation_id, prompt
                     )
                     process_genie_response(conversation)
                 else:
@@ -92,6 +104,7 @@ with tab_b:
 
         genie_space_id = st.text_input("Genie Space ID", help="Room ID in the Genie Space URL")
 
+        
         def display_message(message):
             if "content" in message:
                 st.markdown(message["content"])
@@ -101,12 +114,16 @@ with tab_b:
                 with st.expander("Show generated code"):
                     st.code(message["code"], language="sql", wrap_lines=True)
 
+                    
         def get_query_result(statement_id):
+            # For simplicity, let's say data fits in one chunk, query.manifest.total_chunk_count = 1
+
             result = w.statement_execution.get_statement(statement_id)
             return pd.DataFrame(
                 result.result.data_array, columns=[i.name for i in result.manifest.schema.columns]
             )
 
+            
         def process_genie_response(response):
             st.session_state.conversation_id = response.conversation_id
 
@@ -122,6 +139,34 @@ with tab_b:
                     }
                     display_message(message)
                     st.session_state.messages.append(message)
+                    
+        
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        if st.session_state.genie_space_id == genie_space_id:
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    display_message(message)
+
+        if prompt := st.chat_input("Ask your question..."):
+            st.chat_message("user").markdown(prompt)
+            st.session_state.messages.append({"role": "user", "content": prompt})
+
+            with st.chat_message("assistant"):
+                if genie_space_id:
+                    status = st.status("Working...")
+                    if st.session_state.get("conversation_id"):
+                        conversation = w.genie.create_message_and_wait(
+                            genie_space_id, st.session_state.conversation_id, prompt
+                        )
+                        process_genie_response(conversation)
+                    else:
+                        conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+                        process_genie_response(conversation)
+                    status.empty()
+                else:
+                    st.error("Please fill in the Genie Space ID.")
         """
     )
 

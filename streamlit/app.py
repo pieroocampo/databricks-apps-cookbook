@@ -2,7 +2,7 @@ import streamlit as st
 from view_groups import groups
 
 st.set_page_config(layout="wide")
-st.logo("assets/logo.svg")
+st.logo("streamlit/assets/logo.svg")
 st.title("📖 Databricks Apps Cookbook 🍳")
 
 pages = {
