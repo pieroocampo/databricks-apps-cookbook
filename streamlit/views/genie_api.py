@@ -1,0 +1,157 @@
+import streamlit as st
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.dashboards import GenieMessage
+import pandas as pd
+from typing import Dict
+
+w = WorkspaceClient()
+
+st.header("Genie", divider=True)
+st.subheader("Converse with your data")
+st.write(
+    """
+    This app uses [Genie](https://www.databricks.com/product/ai-bi) [API](https://docs.databricks.com/api/workspace/genie) 
+    to let users ask questions about your data for instant insights.
+    """
+)
+st.warning("Public Preview")
+
+tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
+
+with tab_a:
+    genie_space_id = st.text_input(
+        "Genie Space ID", placeholder="01efe16a65e21836acefb797ae6a8fe4", help="Room ID in the Genie Space URL"
+    )
+
+    def display_message(message: Dict):
+        if "content" in message:
+            st.markdown(message["content"])
+        if "data" in message:
+            st.dataframe(message["data"])
+        if "code" in message:
+            with st.expander("Show generated code"):
+                st.code(message["code"], language="sql", wrap_lines=True)
+
+    def get_query_result(statement_id: str) -> pd.DataFrame:
+        query = w.statement_execution.get_statement(statement_id)
+
+        return pd.DataFrame(
+            query.result.data_array, columns=[i.name for i in query.manifest.schema.columns]
+        )
+
+    def process_genie_response(response: GenieMessage):
+        st.session_state.conversation_id = response.conversation_id
+
+        for i in response.attachments:
+            if i.text:
+                message = {"role": "assistant", "content": i.text.content}
+                display_message(message)
+                st.session_state.messages.append(message)
+            elif i.query:
+                data = get_query_result(i.query.statement_id)
+                message = {
+                    "role": "assistant", "content": i.query.description, "data": data, "code": i.query.query
+                }
+                display_message(message)
+                st.session_state.messages.append(message)
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            display_message(message)
+
+    if prompt := st.chat_input("Ask your question..."):
+        st.chat_message("user").markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        with st.chat_message("assistant"):
+            if genie_space_id:
+                status = st.status("Working...")
+                if st.session_state.get("conversation_id"):
+                    conversation = w.genie.create_message_and_wait(
+                        genie_space_id, st.session_state["conversation_id"], prompt
+                    )
+                    process_genie_response(conversation)
+                else:
+                    conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+                    process_genie_response(conversation)
+                status.empty()
+            else:
+                st.error("Please fill in the Genie Space ID.")
+
+with tab_b:
+    st.code(
+        """
+        import streamlit as st
+        from databricks.sdk import WorkspaceClient
+        import pandas as pd
+
+        w = WorkspaceClient()
+
+        genie_space_id = st.text_input("Genie Space ID", help="Room ID in the Genie Space URL")
+
+        def display_message(message):
+            if "content" in message:
+                st.markdown(message["content"])
+            if "data" in message:
+                st.dataframe(message["data"])
+            if "code" in message:
+                with st.expander("Show generated code"):
+                    st.code(message["code"], language="sql", wrap_lines=True)
+
+        def get_query_result(statement_id):
+            result = w.statement_execution.get_statement(statement_id)
+            return pd.DataFrame(
+                result.result.data_array, columns=[i.name for i in result.manifest.schema.columns]
+            )
+
+        def process_genie_response(response):
+            st.session_state.conversation_id = response.conversation_id
+
+            for i in response.attachments:
+                if i.text:
+                    message = {"role": "assistant", "content": i.text.content}
+                    display_message(message)
+                    st.session_state.messages.append(message)
+                elif i.query:
+                    data = get_query_result(i.query.statement_id)
+                    message = {
+                        "role": "assistant", "content": i.query.description, "data": data, "code": i.query.query
+                    }
+                    display_message(message)
+                    st.session_state.messages.append(message)
+        """
+    )
+
+with tab_c:
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown(
+            """
+            **Permissions (app service principal)**
+            * `SELECT` on the Unity Catalog table
+            * `CAN USE` on the SQL warehouse
+            * `CAN RUN` on the Genie Space
+            """
+        )
+    
+    with col2:
+        st.markdown(
+            """
+            **Databricks resources**
+            * Genie API
+            """
+        )
+    
+    with col3:
+        st.markdown(
+            """
+            **Dependencies**
+            * [Streamlit](https://pypi.org/project/streamlit/) - `streamlit`
+            * [Databricks SDK](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
+            * [Pandas](https://pypi.org/project/pandas/) - `pandas`
+            """
+        )
