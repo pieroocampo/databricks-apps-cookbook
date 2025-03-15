@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 from databricks.sdk import WorkspaceClient
 
@@ -46,7 +47,7 @@ with tab1:
             st.warning("Please specify input parameters.", icon="⚠️")
         else:
             try:
-                parameters = eval(parameters_input.strip())
+                parameters = json.loads(parameters_input.strip())
                 results = trigger_workflow(job_id.strip(), parameters)
                 if "error" in results:
                     st.error(
@@ -60,6 +61,7 @@ with tab1:
 
 with tab2:
     st.code("""
+    import json
     import streamlit as st
     from databricks.sdk import WorkspaceClient
 
@@ -76,7 +78,7 @@ with tab2:
         placeholder='{"param1": "value1", "param2": "value2"}',
     )
 
-    parameters = eval(parameters_input.strip())
+    parameters = json.loads(parameters_input.strip())
 
     if st.button(label="Trigger job"):
         try:
