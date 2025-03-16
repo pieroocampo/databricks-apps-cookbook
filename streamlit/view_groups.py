@@ -69,12 +69,12 @@ groups = [
                 "page": "views/embed_dashboard.py",
                 "icon": ":material/dashboard:",
             },
-            # {
-            #     "label": "Genie",
-            #     "help": "Embed a Genie space.",
-            #     "page": "views/genie_api.py",
-            #     "icon": ":material/chat:",
-            # },
+            {
+                "label": "Genie",
+                "help": "Embed a Genie space.",
+                "page": "views/genie_api.py",
+                "icon": ":material/chat:",
+            },
         ],
     },
     {

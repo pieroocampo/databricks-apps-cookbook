@@ -1,12 +1,12 @@
-from dash import html, dcc, callback, Input, Output, State
+from dash import html, dcc, callback, Input, Output
 import dash_bootstrap_components as dbc
 import dash
 
 # pages/embed_dashboard.py
 dash.register_page(
     __name__,
-    path="/genie/api",
-    title="Genie API",
+    path="/bi/dashboard",
+    title="AI/BI Dashboard",
     name="AI/BI Dashboard",
     category="Business Intelligence",
     icon="material-symbols:dashboard",

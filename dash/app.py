@@ -41,7 +41,8 @@ def create_sidebar():
             'Run vector search'
         ],
         'Business Intelligence': [
-            'AI/BI Dashboard'
+            'AI/BI Dashboard',
+            'Genie'
         ],
         'Workflows': [
             'Trigger a job',
@@ -65,6 +66,7 @@ def create_sidebar():
         'Invoke a model': 'material-symbols:model-training',
         'Run vector search': 'material-symbols:search',
         'AI/BI Dashboard': 'material-symbols:dashboard',
+        'Genie': 'material-symbols:chat',
         'Trigger a job': 'material-symbols:play-circle',
         'Retrieve job results': 'material-symbols:list-alt',
         'Connect': 'material-symbols:link',
