@@ -65,6 +65,10 @@ with tab_a:
                 display_message(message)
                 st.session_state.messages.append(message)
 
+    def reset_conversation():
+        st.session_state.conversation_id = None
+        st.session_state.messages = []
+
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -80,7 +84,7 @@ with tab_a:
 
         with st.chat_message("assistant"):
             if genie_space_id:
-                status = st.status("Working...")
+                status = st.status("Thinking")
                 if st.session_state.get("conversation_id"):
                     conversation = w.genie.create_message_and_wait(
                         genie_space_id, st.session_state.conversation_id, prompt
@@ -89,9 +93,13 @@ with tab_a:
                 else:
                     conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
                     process_genie_response(conversation)
-                status.empty()
+                status.update(label="", state="complete")
+
+                st.button("New Chat", on_click=reset_conversation)
+                st.link_button("Open Genie", f"{w.config.host}/genie/rooms/{genie_space_id}/chats/{st.session_state.conversation_id}")
             else:
                 st.error("Please fill in the Genie Space ID.")
+
 
 with tab_b:
     st.code(
@@ -144,10 +152,9 @@ with tab_b:
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        if st.session_state.genie_space_id == genie_space_id:
-            for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    display_message(message)
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                display_message(message)
 
         if prompt := st.chat_input("Ask your question..."):
             st.chat_message("user").markdown(prompt)
@@ -155,7 +162,6 @@ with tab_b:
 
             with st.chat_message("assistant"):
                 if genie_space_id:
-                    status = st.status("Working...")
                     if st.session_state.get("conversation_id"):
                         conversation = w.genie.create_message_and_wait(
                             genie_space_id, st.session_state.conversation_id, prompt
@@ -164,7 +170,6 @@ with tab_b:
                     else:
                         conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
                         process_genie_response(conversation)
-                    status.empty()
                 else:
                     st.error("Please fill in the Genie Space ID.")
         """
