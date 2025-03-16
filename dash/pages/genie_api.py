@@ -7,7 +7,6 @@ import pandas as pd
 from typing import Dict, List
 
 
-# pages/ml_serving_invoke.py
 dash.register_page(
     __name__,
     path="/bi/genie",
@@ -22,6 +21,49 @@ try:
     w = WorkspaceClient()
 except Exception:
     w = None
+
+code_snippet = '''```python
+import pandas as pd
+from databricks.sdk import WorkspaceClient
+
+
+def get_query_result(statement_id):
+    # For simplicity, let's say data fits in one chunk, query.manifest.total_chunk_count = 1
+
+    result = w.statement_execution.get_statement(statement_id)
+    return pd.DataFrame(
+        result.result.data_array, columns=[i.name for i in result.manifest.schema.columns]
+    )
+
+
+def process_genie_response(response):
+    for i in response.attachments:
+        if i.text:
+            print(f"A: {i.text.content}")
+        elif i.query:
+            data = get_query_result(i.query.statement_id)
+            print(f"A: {i.query.description}")
+            print(f"Data: {data}")
+            print(f"Generated code: {i.query.query}")
+
+                             
+# Configuration
+w = WorkspaceClient()
+genie_space_id = "01f0023d28a71e599b5a62f4117516d4"
+
+prompt = "Ask a question..."
+follow_up_prompt = "Ask a follow-up..."
+
+# Start the conversation          
+conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+process_genie_response(conversation)
+
+# Continue the conversation
+follow_up_conversation = w.genie.create_message_and_wait(
+    genie_space_id, conversation.conversation_id, follow_up_prompt
+)
+process_genie_response(follow_up_conversation)
+```'''
 
 
 def dash_dataframe(df: pd.DataFrame) -> dash.dash_table.DataTable:
@@ -50,7 +92,6 @@ def dash_dataframe(df: pd.DataFrame) -> dash.dash_table.DataTable:
             "whiteSpace": "normal",
             "height": "auto",
         },
-
         page_size=10,
         page_action="native",
         sort_action="native",
@@ -65,12 +106,13 @@ def format_message_display(chat_history: List[Dict]) -> List[Dict]:
     for message in chat_history:
         display = []
         if "content" in message:
-            display.append(dcc.Markdown(message["content"]))
+            role = "You: " if message["role"] == "user" else f"{message['role'].capitalize()}: "
+            display.append(dcc.Markdown(f"{role} {message['content']}"))
         if "data" in message:
             display.append(message["data"])
         if "code" in message:
             display.append(dcc.Markdown(f"```sql {message['code']}```", className="border rounded p-3"))
-        chat_display.append(html.Div(display, className=f"chat-message {message['role']}-message"))
+        chat_display.append(html.Div(display, style={"borderBottom": "2px solid rgba(0, 0, 0, 0.2)", "margin": "5px 0 0 0"}))
 
     return chat_display
 
@@ -132,7 +174,7 @@ def layout():
                 dbc.Form([
                     dbc.Label("Genie Space ID:", className="mt-3"),
                     dbc.Input(
-                        id="genie-space-id-input",
+                        id="genie-space-id",
                         type="text",
                         placeholder="01efe16a65e21836acefb797ae6a8fe4",
                         style={
@@ -149,13 +191,17 @@ def layout():
                             style={
                                 "backgroundColor": "#f8f9fa",
                                 "border": "1px solid #dee2e6",
-                                "boxShadow": "inset 0 1px 2px rgba(0,0,0,0.075)"
+                                "boxShadow": "inset 0 1px 2px rgba(0,0,0,0.075)",
+                                "margin": "5px 0 0 0",
                             }
                         ),
                         dbc.Button(
                             "Chat",
                             id="chat-button",
-                            color="primary"
+                            color="primary",
+                            style={
+                                "margin": "5px 0 0 0",
+                            }
                         )
                     ])
                 ], className="mb-4"),
@@ -164,55 +210,14 @@ def layout():
                 html.Div(id="chat-history", className="mt-4"),
                 dcc.Store(id="chat-history-store"),
                 dcc.Store(id="conversation-id"),
-                
-                # Status/error messages
-                html.Div(id="status-area-genie", className="mt-3")
+                dbc.Button("New Chat", id="clear-button", n_clicks=0, className="mt-3"),
+                dbc.Button("Open Genie", id="genie-button", target="_blank", href="", style={"display": "none"}, className="mt-3"),
+
             ], className="p-3"),
             
             # Code snippet tab
             dbc.Tab(label="Code snippet", children=[
-                dcc.Markdown('''```python
-import pandas as pd
-from databricks.sdk import WorkspaceClient
-
-
-def get_query_result(statement_id):
-    # For simplicity, let's say data fits in one chunk, query.manifest.total_chunk_count = 1
-
-    result = w.statement_execution.get_statement(statement_id)
-    return pd.DataFrame(
-        result.result.data_array, columns=[i.name for i in result.manifest.schema.columns]
-    )
-
-
-def process_genie_response(response):
-    for i in response.attachments:
-        if i.text:
-            print(f"A: {i.text.content}")
-        elif i.query:
-            data = get_query_result(i.query.statement_id)
-            print(f"A: {i.query.description}")
-            print(f"Data: {data}")
-            print(f"Generated code: {i.query.query}")
-
-                             
-# Configuration
-w = WorkspaceClient()
-genie_space_id = "01f0023d28a71e599b5a62f4117516d4"
-
-prompt = "Ask a question..."
-follow_up_prompt = "Ask a follow-up..."
-
-# Start the conversation          
-conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
-process_genie_response(conversation)
-
-# Continue the conversation
-follow_up_conversation = w.genie.create_message_and_wait(
-    genie_space_id, conversation.conversation_id, follow_up_prompt
-)
-process_genie_response(follow_up_conversation)
-```''', className="p-4 border rounded")
+                dcc.Markdown(code_snippet, className="p-4 border rounded")
             ], className="p-3"),
             
             # Requirements tab
@@ -245,46 +250,67 @@ process_genie_response(follow_up_conversation)
         ], className="mb-4")
     ], fluid=True, className="py-4")
 
+
+# Callbacks handle interactions
+
 @callback(
     [Output("chat-history-store", "data", allow_duplicate=True),
      Output("chat-history", "children", allow_duplicate=True),
-     Output("conversation-id", "value", allow_duplicate=True)],
+     Output("conversation-id", "value", allow_duplicate=True),],
      Input("chat-button", "n_clicks"),
-    [State("genie-space-id-input", "value"),
+    [State("genie-space-id", "value"),
      State("conversation-id", "value"),
      State("prompt", "value"),
      State("chat-history-store", "data")],
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def update_chat(n_clicks, genie_space_id, conversation_id, prompt, chat_history):
     if not all([genie_space_id, prompt]):
-        return dash.no_update, dbc.Alert(
-            "Please fill in all fields",
-            color="warning"
-        )
-    
+        return dash.no_update, dbc.Alert("Please fill in all fields", color="warning")
+
     chat_history = chat_history or []
+    chat_history.append({"role": "user", "content": prompt})
 
     try:
         if conversation_id:
-            conversation = w.genie.create_message_and_wait(
-                genie_space_id, conversation_id, prompt
-            )
-            chat_history = process_genie_response(conversation, chat_history)
+            conversation = w.genie.create_message_and_wait(genie_space_id, conversation_id, prompt)
         else:
             conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
             conversation_id = conversation.conversation_id
-            chat_history = process_genie_response(conversation, chat_history)
 
+        chat_history = process_genie_response(conversation, chat_history)
         chat_display = format_message_display(chat_history)
 
         return chat_history, chat_display, conversation_id
-        
+
     except Exception as e:
-        return dash.no_update, dbc.Alert(
-            f"An error occurred: {str(e)}",
-            color="danger"
-        )
+        return dash.no_update, dbc.Alert(f"An error occurred: {str(e)}", color="danger")
+
+
+@callback(
+    [Output("chat-history-store", "data", allow_duplicate=True),
+     Output("chat-history", "children", allow_duplicate=True),
+     Output("conversation-id", "value", allow_duplicate=True),],
+     Input("clear-button", "n_clicks"),
+     prevent_initial_call=True,
+)
+def clear_chat(n_clicks):
+    return [], [], None if n_clicks else (dash.no_update, dash.no_update, None)
+
+
+@callback(
+    [Output("genie-button", "href"), Output("genie-button", "style")],
+    State("genie-space-id", "value"),
+    Input("conversation-id", "value"),
+)
+def update_href(genie_space_id, conversation_id):
+    if not conversation_id:
+        return "", {"display": "none"}
+
+    href = f"{w.config.host}/genie/rooms/{genie_space_id}/chats/{conversation_id}"
+
+    return href, {"margin": "0 0 0 5px"}
+
 
 # Make layout available at module level
 __all__ = ["layout"]
