@@ -1,6 +1,5 @@
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
-from dash.exceptions import PreventUpdate
 import dash
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.dashboards import GenieMessage
@@ -13,7 +12,7 @@ dash.register_page(
     __name__,
     path='/bi/genie',
     title='Genie',
-    name='Converse with your data',
+    name='Genie',
     category='Business Intelligence',
     icon='material-symbols:model-training'
 )
@@ -151,6 +150,7 @@ def layout():
                 
                 # Chat history area
                 html.Div(id="chat-history-genie", className="mt-4"),
+                dcc.Store(id='conversation-id'),
                 
                 # Status/error messages
                 html.Div(id="status-area-genie", className="mt-3")
@@ -237,24 +237,26 @@ process_genie_response(follow_up_conversation)
      Output("status-area-genie", "children")],
     Input("chat-button", "n_clicks"),
     [State("genie-space-id-input", "value"),
+     State("conversation-id", "value"),
      State("question-input", "value")],
     prevent_initial_call=True
 )
-def update_chat(n_clicks, genie_space_id, question):
-    if not all([genie_space_id, question]):
-        return no_update, dbc.Alert(
+def update_chat(n_clicks, genie_space_id, conversation_id, prompt):
+    if not all([genie_space_id, prompt]):
+        return dash.no_update, dbc.Alert(
             "Please fill in all fields",
             color="warning"
         )
     
     try:
-        if st.session_state.get("conversation_id"):
+        if conversation_id:
             conversation = w.genie.create_message_and_wait(
-                genie_space_id, st.session_state.conversation_id, prompt
+                genie_space_id, conversation_id, prompt
             )
             process_genie_response(conversation)
         else:
             conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+            conversation_id = conversation.conversation_id
             process_genie_response(conversation)
 
 
@@ -262,14 +264,14 @@ def update_chat(n_clicks, genie_space_id, question):
             html.Div([
                 dbc.Card(
                     dbc.CardBody([
-                        html.P(f"Q: {question}"),
+                        html.P(f"Q: {prompt}"),
                         html.P("A: Processing your question...")
                     ])
                 )
             ], className="mb-3")
         ], None
     except Exception as e:
-        return no_update, dbc.Alert(
+        return dash.no_update, dbc.Alert(
             f"An error occurred: {str(e)}",
             color="danger"
         )

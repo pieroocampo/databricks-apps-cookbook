@@ -1,4 +1,4 @@
-from dash import html, dcc, callback, Input, Output, State
+from dash import html, dcc, callback, Input, Output
 import dash_bootstrap_components as dbc
 import dash
 
@@ -7,7 +7,7 @@ dash.register_page(
     __name__,
     path="/bi/dashboard",
     title="AI/BI Dashboard",
-    name="Embed a dashboard",
+    name="AI/BI Dashboard",
     category="Business Intelligence",
     icon="material-symbols:dashboard",
 )
