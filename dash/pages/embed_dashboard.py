@@ -5,9 +5,9 @@ import dash
 # pages/embed_dashboard.py
 dash.register_page(
     __name__,
-    path="/genie/api",
-    title="Genie API",
-    name="AI/BI Dashboard",
+    path="/bi/dashboard",
+    title="AI/BI Dashboard",
+    name="Embed a dashboard",
     category="Business Intelligence",
     icon="material-symbols:dashboard",
 )

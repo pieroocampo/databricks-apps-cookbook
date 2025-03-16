@@ -1,13 +1,100 @@
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
-import requests
-import pandas as pd
-from databricks.sdk.core import Config
 from dash.exceptions import PreventUpdate
 import dash
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.dashboards import GenieMessage
+import pandas as pd
+from typing import Dict
 
 
-cfg = Config()
+# pages/ml_serving_invoke.py
+dash.register_page(
+    __name__,
+    path='/bi/genie',
+    title='Genie',
+    name='Converse with your data',
+    category='Business Intelligence',
+    icon='material-symbols:model-training'
+)
+
+# Initialize WorkspaceClient with error handling
+try:
+    w = WorkspaceClient()
+except Exception:
+    w = None
+
+
+def dash_dataframe(df: pd.DataFrame) -> dash.dash_table.DataTable:
+    table = dash.dash_table.DataTable(
+        data=df.to_dict('records'),
+        columns=[{'name': i, 'id': i} for i in df.columns],
+        style_table={
+            'overflowX': 'auto',
+            'minWidth': '100%',
+        },
+        style_header={
+            'backgroundColor': '#f8f9fa',
+            'fontWeight': 'bold',
+            'border': '1px solid #dee2e6',
+            'padding': '12px 15px'
+        },
+        style_cell={
+            'padding': '12px 15px',
+            'textAlign': 'left',
+            'border': '1px solid #dee2e6',
+            'maxWidth': '200px',
+            'overflow': 'hidden',
+            'textOverflow': 'ellipsis'
+        },
+        style_data={
+            'whiteSpace': 'normal',
+            'height': 'auto',
+        },
+
+        page_size=10,
+        page_action='native',
+        sort_action='native',
+        sort_mode='multi'
+    )
+
+    return table
+
+
+def display_message(message: Dict):
+    if "content" in message:
+        dcc.Markdown(message["content"])
+    if "data" in message:
+        dash_dataframe(message["data"])
+    if "code" in message:
+        dcc.Markdown(f'''```sql {message["code"]}```''', className="border rounded p-3")
+
+
+def get_query_result(statement_id: str) -> pd.DataFrame:     
+    query = w.statement_execution.get_statement(statement_id)
+    result = query.result.data_array
+
+    next_chunk = query.result.next_chunk_index
+    while next_chunk:
+        chunk = w.statement_execution.get_statement_result_chunk_n(statement_id, next_chunk)
+        result.append(chunk.data_array)
+        next_chunk = chunk.next_chunk_index
+
+    return pd.DataFrame(result, columns=[i.name for i in query.manifest.schema.columns])
+
+
+def process_genie_response(response: GenieMessage):
+    for i in response.attachments:
+        if i.text:
+            message = {"role": "assistant", "content": i.text.content}
+            display_message(message)
+        elif i.query:
+            data = get_query_result(i.query.statement_id)
+            message = {
+                "role": "assistant", "content": i.query.description, "data": data, "code": i.query.query
+            }
+            display_message(message)
+
 
 def layout():
     return dbc.Container([
@@ -16,8 +103,13 @@ def layout():
         html.P([
             "This app uses ",
             html.A(
-                "Databricks AI/BI Genie",
+                "Genie",
                 href="https://www.databricks.com/product/ai-bi",
+                target="_blank"
+            ),
+            html.A(
+                "API",
+                href="https://docs.databricks.com/api/workspace/genie",
                 target="_blank"
             ),
             " to let users ask questions about your data for instant insights."
@@ -29,34 +121,20 @@ def layout():
                 dbc.Form([
                     dbc.Label("Genie Space ID:", className="mt-3"),
                     dbc.Input(
-                        id="genie-space-input",
+                        id="genie-space-id-input",
                         type="text",
-                        placeholder="Enter your Genie Space ID",
+                        placeholder="01efe16a65e21836acefb797ae6a8fe4",
                         style={
                             "backgroundColor": "#f8f9fa",
                             "border": "1px solid #dee2e6",
                             "boxShadow": "inset 0 1px 2px rgba(0,0,0,0.075)"
                         }
                     ),
-                    
-                    dbc.Label("Authentication Token:", className="mt-3"),
-                    dbc.Input(
-                        id="auth-token-input",
-                        type="password",
-                        placeholder="Enter your authentication token",
-                        style={
-                            "backgroundColor": "#f8f9fa",
-                            "border": "1px solid #dee2e6",
-                            "boxShadow": "inset 0 1px 2px rgba(0,0,0,0.075)"
-                        }
-                    ),
-                    
-                    dbc.Label("Your question:", className="mt-3"),
                     dbc.InputGroup([
                         dbc.Input(
                             id="question-input",
                             type="text",
-                            placeholder="Ask Genie a question",
+                            placeholder="Ask your question...",
                             style={
                                 "backgroundColor": "#f8f9fa",
                                 "border": "1px solid #dee2e6",
@@ -64,8 +142,8 @@ def layout():
                             }
                         ),
                         dbc.Button(
-                            "Ask",
-                            id="ask-button",
+                            "Chat",
+                            id="chat-button",
                             color="primary"
                         )
                     ])
@@ -81,25 +159,46 @@ def layout():
             # Code snippet tab
             dbc.Tab(label="Code snippet", children=[
                 dcc.Markdown('''```python
-import requests
-from databricks.sdk.core import Config
+import pandas as pd
+from databricks.sdk import WorkspaceClient
 
+
+def get_query_result(statement_id):
+    # For simplicity, let's say data fits in one chunk, query.manifest.total_chunk_count = 1
+
+    result = w.statement_execution.get_statement(statement_id)
+    return pd.DataFrame(
+        result.result.data_array, columns=[i.name for i in result.manifest.schema.columns]
+    )
+
+
+def process_genie_response(response):
+    for i in response.attachments:
+        if i.text:
+            print(f"A: {i.text.content})
+        elif i.query:
+            data = get_query_result(i.query.statement_id)
+            print(f"A: {i.query.description})
+            print(f"Data: {data})
+            print(f"Generated code: {i.query.query})
+
+                             
 # Configuration
-cfg = Config()
+w = WorkspaceClient()
 genie_space_id = "your_space_id"
-authentication_token = "your_auth_token"
 
-headers = {
-    'Authorization': f'Bearer {authentication_token}'
-}
+prompt = "Ask a question..."
+follow_up_prompt = "Ask a follow-up..."
 
-def start_conversation(genie_space_id, question):
-    url = f'{cfg.host}/api/2.0/genie/spaces/{genie_space_id}/start-conversation'
-    response = requests.post(url, json={'content': question}, headers=headers)
-    return response.json()
+# Start the conversation          
+conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+process_genie_response(conversation)
 
-# Start conversation
-response = start_conversation(genie_space_id, "What is the total revenue by region?")
+# Continue the conversation
+follow_up_conversation = w.genie.create_message_and_wait(
+    genie_space_id, conversation.conversation_id, follow_up_prompt
+)
+process_genie_response(follow_up_conversation)
 ```''', className="p-4 border rounded")
             ], className="p-3"),
             
@@ -109,20 +208,20 @@ response = start_conversation(genie_space_id, "What is the total revenue by regi
                     dbc.Col([
                         html.H4("Permissions", className="mb-3"),
                         html.Ul([
-                            html.Li("Genie space"),
-                            html.Li("API access token")
+                            html.Li("Unity Catalog table"),
+                            html.Li("SQL warehouse"),
+                            html.Li("Genie Space"),
                         ], className="mb-4")
                     ]),
                     dbc.Col([
                         html.H4("Databricks resources", className="mb-3"),
                         html.Ul([
-                            html.Li("AI/BI Genie Conversations API")
+                            html.Li("Genie API")
                         ], className="mb-4")
                     ]),
                     dbc.Col([
                         html.H4("Dependencies", className="mb-3"),
                         html.Ul([
-                            html.Li(["Requests - ", html.Code("requests")]),
                             html.Li(["Databricks SDK - ", html.Code("databricks-sdk")]),
                             html.Li(["Pandas - ", html.Code("pandas")]),
                             html.Li(["Dash - ", html.Code("dash")])
@@ -136,22 +235,29 @@ response = start_conversation(genie_space_id, "What is the total revenue by regi
 @callback(
     [Output("chat-history-genie", "children"),
      Output("status-area-genie", "children")],
-    Input("ask-button", "n_clicks"),
-    [State("genie-space-input", "value"),
-     State("auth-token-input", "value"),
+    Input("chat-button", "n_clicks"),
+    [State("genie-space-id-input", "value"),
      State("question-input", "value")],
     prevent_initial_call=True
 )
-def update_chat(n_clicks, space_id, token, question):
-    if not all([space_id, token, question]):
+def update_chat(n_clicks, genie_space_id, question):
+    if not all([genie_space_id, question]):
         return no_update, dbc.Alert(
             "Please fill in all fields",
             color="warning"
         )
     
     try:
-        # API interaction code would go here
-        # For now, just return a placeholder response
+        if st.session_state.get("conversation_id"):
+            conversation = w.genie.create_message_and_wait(
+                genie_space_id, st.session_state.conversation_id, prompt
+            )
+            process_genie_response(conversation)
+        else:
+            conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+            process_genie_response(conversation)
+
+
         return [
             html.Div([
                 dbc.Card(
