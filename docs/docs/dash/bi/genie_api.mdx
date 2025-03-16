@@ -8,6 +8,8 @@ This app uses [Genie](https://www.databricks.com/product/ai-bi) [API](https://do
 
 ## Code snippet
 
+Refer to the Dash Cookbook Genie source code for the full implementation.
+
 ```python title="app.py"
 import pandas as pd
 from databricks.sdk import WorkspaceClient
@@ -25,17 +27,17 @@ def get_query_result(statement_id):
 def process_genie_response(response):
     for i in response.attachments:
         if i.text:
-            print(f"A: {i.text.content})
+            print(f"A: {i.text.content}")
         elif i.query:
             data = get_query_result(i.query.statement_id)
-            print(f"A: {i.query.description})
-            print(f"Data: {data})
-            print(f"Generated code: {i.query.query})
+            print(f"A: {i.query.description}")
+            print(f"Data: {data}")
+            print(f"Generated code: {i.query.query}")
 
                              
 # Configuration
 w = WorkspaceClient()
-genie_space_id = "your_space_id"
+genie_space_id = "01f0023d28a71e599b5a62f4117516d4"
 
 prompt = "Ask a question..."
 follow_up_prompt = "Ask a follow-up..."
