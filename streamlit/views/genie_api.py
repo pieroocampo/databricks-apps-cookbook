@@ -168,8 +168,8 @@ with tab_c:
             """
             **Permissions (app service principal)**
             * `SELECT` on the Unity Catalog table
-            * `CAN USE` on the SQL warehouse
-            * `CAN RUN` on the Genie Space
+            * `CAN USE` the SQL warehouse
+            * `CAN VIEW` the Genie Space
             """
         )
     
