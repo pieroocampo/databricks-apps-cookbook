@@ -10,11 +10,11 @@ from typing import Dict, List
 # pages/ml_serving_invoke.py
 dash.register_page(
     __name__,
-    path='/bi/genie',
-    title='Genie',
-    name='Genie',
-    category='Business Intelligence',
-    icon='material-symbols:chat'
+    path="/bi/genie",
+    title="Genie",
+    name="Genie",
+    category="Business Intelligence",
+    icon="material-symbols:chat"
 )
 
 # Initialize WorkspaceClient with error handling
@@ -26,35 +26,35 @@ except Exception:
 
 def dash_dataframe(df: pd.DataFrame) -> dash.dash_table.DataTable:
     table = dash.dash_table.DataTable(
-        data=df.to_dict('records'),
-        columns=[{'name': i, 'id': i} for i in df.columns],
+        data=df.to_dict("records"),
+        columns=[{"name": i, "id": i} for i in df.columns],
         style_table={
-            'overflowX': 'auto',
-            'minWidth': '100%',
+            "overflowX": "auto",
+            "minWidth": "100%",
         },
         style_header={
-            'backgroundColor': '#f8f9fa',
-            'fontWeight': 'bold',
-            'border': '1px solid #dee2e6',
-            'padding': '12px 15px'
+            "backgroundColor": "#f8f9fa",
+            "fontWeight": "bold",
+            "border": "1px solid #dee2e6",
+            "padding": "12px 15px"
         },
         style_cell={
-            'padding': '12px 15px',
-            'textAlign': 'left',
-            'border': '1px solid #dee2e6',
-            'maxWidth': '200px',
-            'overflow': 'hidden',
-            'textOverflow': 'ellipsis'
+            "padding": "12px 15px",
+            "textAlign": "left",
+            "border": "1px solid #dee2e6",
+            "maxWidth": "200px",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
         },
         style_data={
-            'whiteSpace': 'normal',
-            'height': 'auto',
+            "whiteSpace": "normal",
+            "height": "auto",
         },
 
         page_size=10,
-        page_action='native',
-        sort_action='native',
-        sort_mode='multi'
+        page_action="native",
+        sort_action="native",
+        sort_mode="multi"
     )
 
     return table
@@ -69,7 +69,7 @@ def format_message_display(chat_history: List[Dict]) -> List[Dict]:
         if "data" in message:
             display.append(message["data"])
         if "code" in message:
-            display.append(dcc.Markdown(f'''```sql {message["code"]}```''', className="border rounded p-3"))
+            display.append(dcc.Markdown(f"```sql {message['code']}```", className="border rounded p-3"))
         chat_display.append(html.Div(display, className=f"chat-message {message['role']}-message"))
 
     return chat_display
@@ -143,7 +143,7 @@ def layout():
                     ),
                     dbc.InputGroup([
                         dbc.Input(
-                            id="question-input",
+                            id="prompt",
                             type="text",
                             placeholder="Ask your question...",
                             style={
@@ -162,8 +162,8 @@ def layout():
                 
                 # Chat history area
                 html.Div(id="chat-history", className="mt-4"),
-                dcc.Store(id='chat-history-store'),
-                dcc.Store(id='conversation-id'),
+                dcc.Store(id="chat-history-store"),
+                dcc.Store(id="conversation-id"),
                 
                 # Status/error messages
                 html.Div(id="status-area-genie", className="mt-3")
@@ -246,12 +246,13 @@ process_genie_response(follow_up_conversation)
     ], fluid=True, className="py-4")
 
 @callback(
-    [Output('chat-history-store', 'data', allow_duplicate=True),
-     Output('chat-history', 'children', allow_duplicate=True)],
+    [Output("chat-history-store", "data", allow_duplicate=True),
+     Output("chat-history", "children", allow_duplicate=True),
+     Output("conversation-id", "value", allow_duplicate=True)],
      Input("chat-button", "n_clicks"),
     [State("genie-space-id-input", "value"),
      State("conversation-id", "value"),
-     State("question-input", "value"),
+     State("prompt", "value"),
      State("chat-history-store", "data")],
     prevent_initial_call=True
 )
@@ -277,7 +278,7 @@ def update_chat(n_clicks, genie_space_id, conversation_id, prompt, chat_history)
 
         chat_display = format_message_display(chat_history)
 
-        return chat_history, chat_display
+        return chat_history, chat_display, conversation_id
         
     except Exception as e:
         return dash.no_update, dbc.Alert(
@@ -286,4 +287,4 @@ def update_chat(n_clicks, genie_space_id, conversation_id, prompt, chat_history)
         )
 
 # Make layout available at module level
-__all__ = ['layout']
+__all__ = ["layout"]
