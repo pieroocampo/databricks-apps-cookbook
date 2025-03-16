@@ -4,7 +4,7 @@ import dash
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.dashboards import GenieMessage
 import pandas as pd
-from typing import Dict
+from typing import Dict, List
 
 
 # pages/ml_serving_invoke.py
@@ -14,7 +14,7 @@ dash.register_page(
     title='Genie',
     name='Genie',
     category='Business Intelligence',
-    icon='material-symbols:model-training'
+    icon='material-symbols:chat'
 )
 
 # Initialize WorkspaceClient with error handling
@@ -60,16 +60,22 @@ def dash_dataframe(df: pd.DataFrame) -> dash.dash_table.DataTable:
     return table
 
 
-def display_message(message: Dict):
-    if "content" in message:
-        dcc.Markdown(message["content"])
-    if "data" in message:
-        dash_dataframe(message["data"])
-    if "code" in message:
-        dcc.Markdown(f'''```sql {message["code"]}```''', className="border rounded p-3")
+def format_message_display(chat_history: List[Dict]) -> List[Dict]:
+    chat_display = []
+    for message in chat_history:
+        display = []
+        if "content" in message:
+            display.append(dcc.Markdown(message["content"]))
+        if "data" in message:
+            display.append(message["data"])
+        if "code" in message:
+            display.append(dcc.Markdown(f'''```sql {message["code"]}```''', className="border rounded p-3"))
+        chat_display.append(html.Div(display, className=f"chat-message {message['role']}-message"))
+
+    return chat_display
 
 
-def get_query_result(statement_id: str) -> pd.DataFrame:     
+def get_query_result(statement_id: str) -> dash.dash_table.DataTable:     
     query = w.statement_execution.get_statement(statement_id)
     result = query.result.data_array
 
@@ -79,20 +85,25 @@ def get_query_result(statement_id: str) -> pd.DataFrame:
         result.append(chunk.data_array)
         next_chunk = chunk.next_chunk_index
 
-    return pd.DataFrame(result, columns=[i.name for i in query.manifest.schema.columns])
+    df = pd.DataFrame(result, columns=[i.name for i in query.manifest.schema.columns])
+
+    return dash_dataframe(df)
 
 
-def process_genie_response(response: GenieMessage):
+def process_genie_response(response: GenieMessage, chat_history: List[Dict]) -> List[Dict]:
     for i in response.attachments:
         if i.text:
             message = {"role": "assistant", "content": i.text.content}
-            display_message(message)
+            chat_history.append(message)
+
         elif i.query:
             data = get_query_result(i.query.statement_id)
             message = {
                 "role": "assistant", "content": i.query.description, "data": data, "code": i.query.query
             }
-            display_message(message)
+            chat_history.append(message)
+    
+    return chat_history
 
 
 def layout():
@@ -106,6 +117,7 @@ def layout():
                 href="https://www.databricks.com/product/ai-bi",
                 target="_blank"
             ),
+            " ",
             html.A(
                 "API",
                 href="https://docs.databricks.com/api/workspace/genie",
@@ -149,7 +161,8 @@ def layout():
                 ], className="mb-4"),
                 
                 # Chat history area
-                html.Div(id="chat-history-genie", className="mt-4"),
+                html.Div(id="chat-history", className="mt-4"),
+                dcc.Store(id='chat-history-store'),
                 dcc.Store(id='conversation-id'),
                 
                 # Status/error messages
@@ -233,43 +246,39 @@ process_genie_response(follow_up_conversation)
     ], fluid=True, className="py-4")
 
 @callback(
-    [Output("chat-history-genie", "children"),
-     Output("status-area-genie", "children")],
-    Input("chat-button", "n_clicks"),
+    [Output('chat-history-store', 'data', allow_duplicate=True),
+     Output('chat-history', 'children', allow_duplicate=True)],
+     Input("chat-button", "n_clicks"),
     [State("genie-space-id-input", "value"),
      State("conversation-id", "value"),
-     State("question-input", "value")],
+     State("question-input", "value"),
+     State("chat-history-store", "data")],
     prevent_initial_call=True
 )
-def update_chat(n_clicks, genie_space_id, conversation_id, prompt):
+def update_chat(n_clicks, genie_space_id, conversation_id, prompt, chat_history):
     if not all([genie_space_id, prompt]):
         return dash.no_update, dbc.Alert(
             "Please fill in all fields",
             color="warning"
         )
     
+    chat_history = chat_history or []
+
     try:
         if conversation_id:
             conversation = w.genie.create_message_and_wait(
                 genie_space_id, conversation_id, prompt
             )
-            process_genie_response(conversation)
+            chat_history = process_genie_response(conversation, chat_history)
         else:
             conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
             conversation_id = conversation.conversation_id
-            process_genie_response(conversation)
+            chat_history = process_genie_response(conversation, chat_history)
 
+        chat_display = format_message_display(chat_history)
 
-        return [
-            html.Div([
-                dbc.Card(
-                    dbc.CardBody([
-                        html.P(f"Q: {prompt}"),
-                        html.P("A: Processing your question...")
-                    ])
-                )
-            ], className="mb-3")
-        ], None
+        return chat_history, chat_display
+        
     except Exception as e:
         return dash.no_update, dbc.Alert(
             f"An error occurred: {str(e)}",
