@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# Converse with your data
+# Chat with a Genie Space
 
-This app uses [Genie](https://www.databricks.com/product/ai-bi) [API](https://docs.databricks.com/api/workspace/genie) to let users ask questions about your data for instant insights.
+This app uses the [AI/BI Genie](https://www.databricks.com/product/ai-bi) [Conversations API](https://docs.databricks.com/api/workspace/genie) to let users ask questions about your data for instant insights.
 
 ## Code snippet
 
@@ -29,7 +29,7 @@ def display_message(message):
         with st.expander("Show generated code"):
             st.code(message["code"], language="sql", wrap_lines=True)
 
-            
+
 def get_query_result(statement_id):
     # For simplicity, let's say data fits in one chunk, query.manifest.total_chunk_count = 1
 
@@ -38,8 +38,8 @@ def get_query_result(statement_id):
         result.result.data_array, columns=[i.name for i in result.manifest.schema.columns]
     )
 
-    
-def process_genie_response(response):    
+
+def process_genie_response(response):
     for i in response.attachments:
         if i.text:
             message = {"role": "assistant", "content": i.text.content}
@@ -50,7 +50,7 @@ def process_genie_response(response):
                 "role": "assistant", "content": i.query.description, "data": data, "code": i.query.query
             }
             display_message(message)
-            
+
 
 if prompt := st.chat_input("Ask your question..."):
     # Refer to actual app code for chat history persistence on rerun
@@ -70,7 +70,7 @@ if prompt := st.chat_input("Ask your question..."):
 
 :::info
 
-Copy and paste the Genie space ID from the Genie UI URL as rooms/<SPACE-ID>?o=.
+Copy and paste the Genie space ID from the Genie UI URL as rooms/SPACE-ID?o=.
 
 :::
 
@@ -85,8 +85,6 @@ Your [app service principal](https://docs.databricks.com/aws/en/dev-tools/databr
 - `SELECT` on the Unity Catalog table
 - `CAN USE` the SQL warehouse
 - `CAN VIEW` the Genie Space
-
-:::
 
 ## Dependencies
 
