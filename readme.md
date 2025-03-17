@@ -30,6 +30,11 @@ Not sure what to contribute? Here are some commonly requested samples:
 - Gradio implementation
 - Flask implementation
 
+## First Start
+
+- run requirements.txt
+- setup ~/.databrickscfg to config your databricks host and token
+
 ## Support
 
 These samples are experimental and meant for demonstration purposes only. They are provided as-is and without formal support by Databricks. Ensure your organization's security, compliance, and operational best practices are applied before deploying them to production.
