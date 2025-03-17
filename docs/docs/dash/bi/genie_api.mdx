@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Converse with your data
@@ -34,7 +34,7 @@ def process_genie_response(response):
             print(f"Data: {data}")
             print(f"Generated code: {i.query.query}")
 
-                             
+
 # Configuration
 w = WorkspaceClient()
 genie_space_id = "01f0023d28a71e599b5a62f4117516d4"
@@ -42,7 +42,7 @@ genie_space_id = "01f0023d28a71e599b5a62f4117516d4"
 prompt = "Ask a question..."
 follow_up_prompt = "Ask a follow-up..."
 
-# Start the conversation          
+# Start the conversation
 conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
 process_genie_response(conversation)
 
@@ -55,7 +55,7 @@ process_genie_response(follow_up_conversation)
 
 :::info
 
-Copy and paste the Genie space ID from the Genie UI URL as rooms/<SPACE-ID>?o=.
+Copy and paste the Genie space ID from the Genie UI URL as rooms/SPACE-ID?o=.
 
 :::
 
@@ -70,8 +70,6 @@ Your [app service principal](https://docs.databricks.com/aws/en/dev-tools/databr
 - `SELECT` on the Unity Catalog table
 - `CAN USE` the SQL warehouse
 - `CAN VIEW` the Genie Space
-
-:::
 
 ## Dependencies
 
