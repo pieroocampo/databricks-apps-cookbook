@@ -1,5 +1,6 @@
 import streamlit as st
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.errors.sdk import OperationFailed
 from databricks.sdk.service.dashboards import GenieMessage
 import pandas as pd
 from typing import Dict
@@ -20,10 +21,16 @@ st.warning("Public Preview")
 tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements**"])
 
 with tab_a:
+    def reset_conversation():
+        st.session_state.conversation_id = None
+        st.session_state.messages = []
+
     genie_space_id = st.text_input(
         "Genie Space ID", placeholder="01efe16a65e21836acefb797ae6a8fe4", help="Room ID in the Genie Space URL"
     )
-    st.session_state.genie_space_id = genie_space_id
+    if genie_space_id != st.session_state.get("genie_space_id", ""):
+        reset_conversation()
+        st.session_state.genie_space_id = genie_space_id
 
 
     def display_message(message: Dict):
@@ -65,18 +72,13 @@ with tab_a:
                 display_message(message)
                 st.session_state.messages.append(message)
 
-    def reset_conversation():
-        st.session_state.conversation_id = None
-        st.session_state.messages = []
-
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    if st.session_state.genie_space_id == genie_space_id:
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                display_message(message)
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            display_message(message)
 
     if prompt := st.chat_input("Ask your question..."):
         st.chat_message("user").markdown(prompt)
@@ -86,15 +88,28 @@ with tab_a:
             if genie_space_id:
                 status = st.status("Thinking")
                 if st.session_state.get("conversation_id"):
-                    conversation = w.genie.create_message_and_wait(
-                        genie_space_id, st.session_state.conversation_id, prompt
-                    )
+                    try:
+                        conversation = w.genie.create_message_and_wait(
+                            genie_space_id, st.session_state.conversation_id, prompt
+                        )
+                    except Exception as e:
+                        status.update(label="Conversation failed. Check the required permissions.", state="error")
+                        st.button("New Chat", on_click=reset_conversation)
+                        raise e
+                    if conversation.error:
+                        st.error(conversation.error.type, conversation.error.error)
                     process_genie_response(conversation)
                 else:
-                    conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+                    try:
+                        conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
+                    except Exception as e:
+                        status.update(label="Failed to initialize Genie. Check the required permissions.", state="error")
+                        st.button("New Chat", on_click=reset_conversation)
+                        raise e
+                    if conversation.error:
+                        st.error(conversation.error.type, conversation.error.error)
                     process_genie_response(conversation)
                 status.update(label="", state="complete")
-
                 st.button("New Chat", on_click=reset_conversation)
                 st.link_button("Open Genie", f"{w.config.host}/genie/rooms/{genie_space_id}/chats/{st.session_state.conversation_id}")
             else:
@@ -102,6 +117,7 @@ with tab_a:
 
 
 with tab_b:
+    st.markdown("Refer to the source code for the full implmenetation.")
     st.code(
         """
 import streamlit as st

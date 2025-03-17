@@ -27,6 +27,9 @@ import pandas as pd
 from databricks.sdk import WorkspaceClient
 
 
+# Refer to the source code for the full implmenetation.
+
+
 def get_query_result(statement_id):
     # For simplicity, let's say data fits in one chunk, query.manifest.total_chunk_count = 1
 
@@ -274,9 +277,11 @@ def update_chat(n_clicks, genie_space_id, conversation_id, prompt, chat_history)
     try:
         if conversation_id:
             conversation = w.genie.create_message_and_wait(genie_space_id, conversation_id, prompt)
+            # Access error codes via conversation.error for detailed exception handling.
         else:
             conversation = w.genie.start_conversation_and_wait(genie_space_id, prompt)
             conversation_id = conversation.conversation_id
+            # Access error codes via conversation.error for detailed exception handling.
 
         chat_history = process_genie_response(conversation, chat_history)
         chat_display = format_message_display(chat_history)
@@ -284,18 +289,19 @@ def update_chat(n_clicks, genie_space_id, conversation_id, prompt, chat_history)
         return chat_history, chat_display, conversation_id
 
     except Exception as e:
-        return dash.no_update, dbc.Alert(f"An error occurred: {str(e)}", color="danger")
+        return dash.no_update, dbc.Alert(f"Check the required permissions. An error occurred: {str(e)}", color="danger"), ""
 
 
 @callback(
     [Output("chat-history-store", "data", allow_duplicate=True),
      Output("chat-history", "children", allow_duplicate=True),
      Output("conversation-id", "value", allow_duplicate=True),],
-     Input("clear-button", "n_clicks"),
+    [Input("clear-button", "n_clicks"),
+     Input("genie-space-id", "value"),],
      prevent_initial_call=True,
 )
-def clear_chat(n_clicks):
-    return [], [], None if n_clicks else (dash.no_update, dash.no_update, None)
+def clear_chat(n_clicks, value):
+    return [], [], None if n_clicks or value else (dash.no_update, dash.no_update, None)
 
 
 @callback(
