@@ -87,17 +87,25 @@ with tab_a:
     catalog_name = st.selectbox(
         "Select your Catalog:", [""] + [catalog.name for catalog in catalogs]
     )
+    #Message to prompt user to select warehouse and catalog
+    if http_path_input == "" or catalog_name == "":
+        st.warning("Select Warehouse and Catalog")
+    
     if catalog_name and catalog_name != "":
         schema_names = get_schema_names(catalog_name)
         schema_name = st.selectbox(
             "Select your Schema:", [""] + schema_names
         )
+        if schema_name == "":
+            st.warning("Select Schema")
 
     if catalog_name and catalog_name != "" and schema_name and schema_name != "":
         table_names = get_table_names(catalog_name, schema_name)
         table_name = st.selectbox(
             "Select your Table:", [""] + table_names
         )
+        if table_name == "":
+            st.warning("Select Table")
         
         in_table_name = f"{catalog_name}.{schema_name}.{table_name}"
 
@@ -111,8 +119,8 @@ with tab_a:
             if not df_diff.empty:
                 if st.button("Save changes"):
                     insert_overwrite_table(in_table_name, edited_df, conn)
-        else:
-            st.warning("Provide both the warehouse path and a table name to load data.")
+       # else:
+        #    st.warning("Provide both the warehouse path and a table name to load data.")
 
 
 with tab_b:

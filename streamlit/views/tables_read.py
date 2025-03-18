@@ -56,11 +56,16 @@ with tab_a:
         "Select your Catalog:", [""] + [catalog.name for catalog in catalogs]
     )
 
+    if http_path_input == "" or catalog_name == "":
+        st.warning("Select Warehouse and Catalog")
+
     if catalog_name and catalog_name != "":
         schema_names = get_schema_names(catalog_name)
         schema_name = st.selectbox(
             "Select your Schema:", [""] + schema_names
         )
+        if schema_name == "":
+            st.warning("Select Schema")
 
     if catalog_name and catalog_name != "" and schema_name and schema_name != "":
         table_names = get_table_names(catalog_name, schema_name)
@@ -68,11 +73,18 @@ with tab_a:
             "Select your Table:", [""] + table_names
         )
 
-        if http_path_input and table_name:
+        if table_name == "":
+            st.warning("Select Table")
+
+        if http_path_input and table_name and table_name != "":
             http_path = warehouse_paths[http_path_input]
             conn = get_connection(http_path)
+            #info_placeholder = st.empty()
+            st.info(f"Running Select on {catalog_name}.{schema_name}.{table_name}")
             df = read_table(f"{catalog_name}.{schema_name}.{table_name}", conn)
+            #info_placeholder.empty()  # Clear the info message
             st.dataframe(df)
+
 
 with tab_b:
     st.code(
