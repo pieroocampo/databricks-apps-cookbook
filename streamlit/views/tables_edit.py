@@ -81,7 +81,7 @@ tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements
 
 with tab_a:
     http_path_input = st.selectbox(
-        "Select your Databricks SQL Warehouse", [""] + list(warehouse_paths.keys())
+        "Select your Databricks SQL Warehouse:", [""] + list(warehouse_paths.keys())
     )
 
     catalog_name = st.selectbox(
