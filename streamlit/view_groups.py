@@ -122,4 +122,16 @@ groups = [
             },
         ],
     },
+    
+    {
+        "title": "Unity Catalog",
+        "views": [
+            {
+                "label": "Get Catalogs",
+                "help": "Get meta data.",
+                "page": "views/unity_catalog_get.py",
+                "icon": ":material/lan:",
+            },
+        ],
+    }
 ]
