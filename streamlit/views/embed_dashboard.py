@@ -1,5 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import requests
+from databricks.sdk.core import Config
 
 st.header("Data Visualization", divider=True)
 st.subheader("AI/BI Dashboard")
@@ -12,13 +14,46 @@ tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements
 
 
 with tab_a:
-    iframe_source = st.text_input(
-        "Embed the dashboard:",
-        placeholder="https://dbc-f0e9b24f-3d49.cloud.databricks.com/embed/dashboardsv3/01eff8112e9411cd930f0ae0d2c6b63d?o=37581543725667790",
-        help="Copy and paste the URL from the dashboard UI Share -> Embed iframe.",
-    )
 
-    if iframe_source:
+
+    cfg = Config()
+
+    host = cfg.host
+
+    token = list(cfg.authenticate().values())[0].split(" ")[1]
+    url = f"{host}/api/2.0/lakeview/dashboards"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    response = requests.get(url, headers=headers)
+    dashboards = response.json()
+    dashboard_paths = {dashboard['display_name']: dashboard['dashboard_id'] for dashboard in dashboards['dashboards']}
+
+    published_dashboards = []
+
+    for dashboard in dashboards['dashboards']:
+        dashboard_id = dashboard['dashboard_id']
+        
+        published_url = f"{host}/api/2.0/lakeview/dashboards/{dashboard_id}/published"
+        response = requests.get(published_url, headers=headers)
+    
+        if response.status_code == 200:
+            published_dashboards.append((dashboard['display_name'], dashboard['dashboard_id']))
+            print( dashboard['display_name'] + ' ' + dashboard['dashboard_id'])
+    final_published_dashboards = {k: v for k, v in published_dashboards }
+
+    #st.info(final_published_dashboards)
+    iframe_source_temp = st.selectbox(
+        "Select your AI/BI Dashboard:", [""] + list(final_published_dashboards.keys()),
+        help="Dashboard list populated from your workspace using app service principal.",
+    )
+ 
+    dashboard_id = final_published_dashboards.get(iframe_source_temp)
+
+    if iframe_source_temp and iframe_source_temp != "":
+        iframe_source = f"{host}/embed/dashboardsv3/{dashboard_id}"
+        #st.info(iframe_source)
         components.iframe(src=iframe_source, width=700, height=600, scrolling=True)
 
 with tab_b:
