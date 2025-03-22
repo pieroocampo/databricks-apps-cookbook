@@ -57,9 +57,6 @@ with tab_a:
         "Select a catalog:", [""] + [catalog.name for catalog in catalogs]
     )
 
-    if http_path_input == "" or catalog_name == "":
-        st.warning("Select Warehouse and Catalog")
-
     if catalog_name and catalog_name != "":
         schema_names = get_schema_names(catalog_name)
         schema_name = st.selectbox("Select a schema:", [""] + schema_names)
