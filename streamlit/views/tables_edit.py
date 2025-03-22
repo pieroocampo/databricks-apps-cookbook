@@ -15,17 +15,14 @@ st.write(
 
 cfg = Config()
 
-# Initialize the client
 w = WorkspaceClient()
 
-# List SQL Warehouses
 warehouses = w.warehouses.list()
 
-# Create a dictionary to map warehouse names to their paths
 warehouse_paths = {wh.name: wh.odbc_params.path for wh in warehouses}
 
-# List catalogs
 catalogs = w.catalogs.list()
+
 
 @st.cache_resource
 def get_connection(http_path):
@@ -34,6 +31,7 @@ def get_connection(http_path):
         http_path=http_path,
         credentials_provider=lambda: cfg.authenticate,
     )
+
 
 def read_table(table_name, conn):
     with conn.cursor() as cursor:
@@ -41,28 +39,15 @@ def read_table(table_name, conn):
         cursor.execute(query)
         return cursor.fetchall_arrow().to_pandas()
 
+
 def get_schema_names(catalog_name):
     schemas = w.schemas.list(catalog_name=catalog_name)
     return [schema.name for schema in schemas]
 
+
 def get_table_names(catalog_name, schema_name):
     tables = w.tables.list(catalog_name=catalog_name, schema_name=schema_name)
     return [table.name for table in tables]
-
-
-@st.cache_resource
-def get_connection(http_path):
-    return sql.connect(
-        server_hostname=cfg.host,
-        http_path=http_path,
-        credentials_provider=lambda: cfg.authenticate,
-    )
-
-
-def read_table(table_name: str, conn) -> pd.DataFrame:
-    with conn.cursor() as cursor:
-        cursor.execute(f"SELECT * FROM {table_name}")
-        return cursor.fetchall_arrow().to_pandas()
 
 
 def insert_overwrite_table(table_name: str, df: pd.DataFrame, conn):
@@ -81,35 +66,30 @@ tab_a, tab_b, tab_c = st.tabs(["**Try it**", "**Code snippet**", "**Requirements
 
 with tab_a:
     http_path_input = st.selectbox(
-        "Select your Databricks SQL Warehouse:", [""] + list(warehouse_paths.keys())
+        "Select a SQL warehouse:", [""] + list(warehouse_paths.keys())
     )
 
     catalog_name = st.selectbox(
-        "Select your Catalog:", [""] + [catalog.name for catalog in catalogs]
+        "Select a catalog:", [""] + [catalog.name for catalog in catalogs]
     )
-    #Message to prompt user to select warehouse and catalog
-    if http_path_input == "" or catalog_name == "":
-        st.warning("Select Warehouse and Catalog")
-    
+
     if catalog_name and catalog_name != "":
         schema_names = get_schema_names(catalog_name)
-        schema_name = st.selectbox(
-            "Select your Schema:", [""] + schema_names
-        )
-        if schema_name == "":
-            st.warning("Select Schema")
+        schema_name = st.selectbox("Select a schema:", [""] + schema_names)
 
     if catalog_name and catalog_name != "" and schema_name and schema_name != "":
         table_names = get_table_names(catalog_name, schema_name)
-        table_name = st.selectbox(
-            "Select your Table:", [""] + table_names
-        )
-        if table_name == "":
-            st.warning("Select Table")
-        
+        table_name = st.selectbox("Select a table:", [""] + table_names)
+
         in_table_name = f"{catalog_name}.{schema_name}.{table_name}"
 
-        if http_path_input and table_name and catalog_name and schema_name and table_name != "":
+        if (
+            http_path_input
+            and table_name
+            and catalog_name
+            and schema_name
+            and table_name != ""
+        ):
             http_path = warehouse_paths[http_path_input]
             conn = get_connection(http_path)
             original_df = read_table(in_table_name, conn)
@@ -119,8 +99,6 @@ with tab_a:
             if not df_diff.empty:
                 if st.button("Save changes"):
                     insert_overwrite_table(in_table_name, edited_df, conn)
-       # else:
-        #    st.warning("Provide both the warehouse path and a table name to load data.")
 
 
 with tab_b:
@@ -130,6 +108,7 @@ with tab_b:
         import streamlit as st
         from databricks import sql
         from databricks.sdk.core import Config
+
 
         cfg = Config() # Set the DATABRICKS_HOST environment variable when running locally
 
