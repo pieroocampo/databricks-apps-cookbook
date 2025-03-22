@@ -105,14 +105,14 @@ groups = [
             },
         ],
     },
-        {
+    {
         "title": "Unity Catalog",
         "views": [
             {
-                "label": "Get Catalogs",
-                "help": "Get meta data.",
+                "label": "List catalogs and schemas",
+                "help": "Get metadata.",
                 "page": "views/unity_catalog_get.py",
-                "icon": ":material/lan:",
+                "icon": ":material/library_books:",
             },
         ],
     },
