@@ -106,6 +106,17 @@ groups = [
         ],
     },
     {
+        "title": "Unity Catalog",
+        "views": [
+            {
+                "label": "List catalogs and schemas",
+                "help": "Get metadata.",
+                "page": "views/unity_catalog_get.py",
+                "icon": ":material/library_books:",
+            },
+        ],
+    },
+    {
         "title": "Authentication",
         "views": [
             {
