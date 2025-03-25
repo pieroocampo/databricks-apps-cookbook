@@ -22,6 +22,14 @@ const config: Config = {
     locales: ["en"],
   },
 
+  scripts: [
+    {
+      src: 'https://plausible.io/js/script.outbound-links.js',
+      defer: true,
+      'apps-cookbook.dev': 'yourdomain.com'
+    }
+  ]
+
   presets: [
     [
       "classic",
