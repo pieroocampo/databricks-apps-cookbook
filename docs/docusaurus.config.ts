@@ -28,7 +28,7 @@ const config: Config = {
       defer: true,
       'apps-cookbook.dev': 'yourdomain.com'
     }
-  ]
+  ],
 
   presets: [
     [
