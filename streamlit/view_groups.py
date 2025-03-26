@@ -126,6 +126,12 @@ groups = [
                 "icon": ":material/fingerprint:",
             },
             {
+                "label": "On-behalf-of-user",
+                "help": "Run commands on behalf of a user instead of the app's service principal.",
+                "page": "views/users_obo.py",
+                "icon": ":material/key:",
+            },
+            {
                 "label": "Retrieve a secret",
                 "help": "Get a sensitive API key without hard-coding it.",
                 "page": "views/secrets_retrieve.py",
@@ -133,7 +139,6 @@ groups = [
             },
         ],
     },
-    
     {
         "title": "Unity Catalog",
         "views": [
@@ -144,5 +149,5 @@ groups = [
                 "icon": ":material/lan:",
             },
         ],
-    }
+    },
 ]
