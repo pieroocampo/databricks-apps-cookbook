@@ -24,7 +24,7 @@ We welcome contributions! Submit a [pull request](https://github.com/pbv0/databr
 
 Not sure what to contribute? Here are some commonly requested samples:
 
-- Genie Conversations API samples
+- Write data from a form into a Delta table
 - Display coordinates from a Delta table in a map component
 - Display data from a Delta table in Streamlit/Dash-native diagram components
 - Gradio implementation
