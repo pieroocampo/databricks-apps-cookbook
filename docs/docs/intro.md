@@ -14,7 +14,7 @@ These code snippets cover common use cases such as reading and writing to and fr
 
 For each snippet, you will find the **source code**, required **permissions**, list of **dependencies**, and any other information needed to implement it.
 
-Currently, we offer snippets for [Streamlit](/docs/category/streamlit) and [Dash](/docs/category/dash) and they can be easily adapted to other Python frameworks.
+Currently, we offer snippets for [Streamlit](/docs/category/streamlit), [Dash](/docs/category/dash), and [FastAPI](/docs/category/fastapi) and they can be easily adapted to other Python frameworks.
 
 <div className="mt-4 flex flex-wrap space-x-8 align-middle text-center">
     <Link to="/docs/category/streamlit">
@@ -27,6 +27,12 @@ Currently, we offer snippets for [Streamlit](/docs/category/streamlit) and [Dash
         <button className="inline-flex items-center border-2 border-lava-600 px-8 py-2.5 text-center align-middle text-lg font-semibold text-lava-600 hover:cursor-pointer hover:border-lava-700 hover:underline bg-transparent hover:cursor-pointer">
             <img src="/img/logo_dash.png" className="mr-4 h-8" />
             <span>Build with Dash</span>
+        </button>
+    </Link>
+    <Link to="/docs/category/fastapi">
+        <button className="inline-flex items-center border-2 border-lava-600 px-8 py-2.5 text-center align-middle text-lg font-semibold text-lava-600 hover:cursor-pointer hover:border-lava-700 hover:underline bg-transparent hover:cursor-pointer">
+            <img src="/img/logo_fastapi.svg" className="mr-4 h-8" />
+            <span>Build with FastAPI</span>
         </button>
     </Link>
 </div>

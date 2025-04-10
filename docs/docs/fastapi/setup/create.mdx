@@ -1,0 +1,94 @@
+---
+sidebar_position: 1
+---
+
+# Create a FastAPI App
+
+This recipe demonstrates how to create a FastAPI application on Databricks Apps.  
+
+## Code snippets
+
+#### Main Application Entrypoint
+
+```python title="app.py"
+from fastapi import FastAPI
+
+from routes import api_router
+
+app = FastAPI(
+    title="FastAPI & Databricks Apps",
+    description="A simple FastAPI application example for Databricks Apps runtime",
+    version="1.0.0",
+)
+
+# Router assignment
+app.include_router(api_router)
+
+
+@app.get("/")
+async def root():
+    return {
+        "app": "Databricks FastAPI Example",
+        "message": "Welcome to the Databricks FastAPI example app",
+        "docs": "/docs",
+    }
+```
+
+#### API Routes
+
+Main router entrypoint for the application
+```python title="routes/__init__.py"
+from fastapi import APIRouter
+
+# Import routers from versioned packages
+from .v1 import router as v1_router
+
+# Create a router for the API
+api_router = APIRouter()
+
+# Include versioned routers - prefix must have /api for Databricks Apps token-based auth
+api_router.include_router(v1_router, prefix="/api/v1")
+```
+
+Specific routers for the application - uses versioning and specific endpoints for isolation
+```python title="routes/v1/__init__.py"
+"""V1 API routes."""
+
+from fastapi import APIRouter
+
+from .healthcheck import router as healthcheck_router
+
+router = APIRouter()
+
+# Include endpoint-specific routers
+router.include_router(healthcheck_router)
+```
+
+```python title="routes/v1/healthcheck.py"
+from datetime import datetime, timezone
+from fastapi import APIRouter
+from typing import Dict
+
+router = APIRouter()
+
+@router.get("/healthcheck")
+async def healthcheck() -> Dict[str, str]:
+    """Return the API status."""
+    return {"status": "OK", "timestamp": datetime.now(timezone.utc).isoformat()}
+```
+
+## Resources
+
+- [FastAPI](https://pypi.org/project/fastapi/) - `fastapi`
+- [uvicorn](https://pypi.org/project/uvicorn/) - `uvicorn`
+
+## Permissions
+
+As of April 2025, there are no permission restrictions on the creation of Databricks Apps for valid workspace users.
+
+## Dependencies
+
+```python title="requirements.txt"
+fastapi
+uvicorn
+``` 

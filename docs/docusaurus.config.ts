@@ -79,7 +79,7 @@ const config: Config = {
     metadata: [
       {
         name: "keywords",
-        content: "databricks, databricks apps, streamlit, dash",
+        content: "databricks, databricks apps, streamlit, dash, fastapi",
       },
     ],
     navbar: {
@@ -102,6 +102,12 @@ const config: Config = {
           label: "Dash",
           position: "left",
           activeBasePath: "docs/category/dash",
+        },
+        {
+          to: "docs/category/fastapi",
+          label: "FastAPI",
+          position: "left",
+          activeBasePath: "docs/category/fastapi",
         },
         { to: "blog", label: "Blog", position: "left" },
         {
