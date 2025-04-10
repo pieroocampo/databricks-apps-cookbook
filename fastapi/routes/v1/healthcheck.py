@@ -1,9 +1,9 @@
 """Healthcheck endpoint for the V1 API."""
 
 from datetime import datetime, timezone
+from typing import Dict
 
 from fastapi import APIRouter
-from typing import Dict
 
 router = APIRouter()
 
