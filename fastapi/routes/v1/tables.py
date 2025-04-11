@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query
 from config.settings import Settings, get_settings
 from errors.exceptions import ConfigurationError, DatabaseError
 from models.tables import TableQueryParams, TableResponse
-from services.db.connector import query_table
+from services.db.connector import query
 
 router = APIRouter(tags=["tables"])
 
@@ -72,7 +72,7 @@ async def table(
         table_path = f"{params.catalog}.{params.schema_name}.{params.table}"
         where_clause = f"WHERE {params.filter_expr}" if params.filter_expr else ""
 
-        query = f"""
+        sql_query = f"""
             SELECT {params.columns}
             FROM {table_path}
             {where_clause}
@@ -80,7 +80,7 @@ async def table(
         """
 
         # Execute the query
-        results = query_table(query, warehouse_id=warehouse_id)
+        results = query(sql_query, warehouse_id=warehouse_id)
 
         # Create the response
         return TableResponse(

@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from services.db.connector import get_connection, query_table, close_connections
+from services.db.connector import get_connection, query, close_connections
 
 
 @pytest.fixture
@@ -73,13 +73,13 @@ class TestDatabaseConnector:
         call_kwargs = mock_sql.connect.call_args.kwargs
         assert call_kwargs["http_path"] == expected_http_path
 
-    def test_query_table_returns_dict_results(self, mock_db_connection, mock_cursor):
-        """Test that query_table returns results as dictionaries when as_dict=True."""
+    def test_query_returns_dict_results(self, mock_db_connection, mock_cursor):
+        """Test that query returns results as dictionaries when as_dict=True."""
         # Arrange
         test_query = "SELECT * FROM catalog.schema.table"
 
         # Act
-        result = query_table(test_query, "warehouse-id", as_dict=True)
+        result = query(test_query, "warehouse-id", as_dict=True)
 
         # Assert
         assert isinstance(result, list)
@@ -88,13 +88,13 @@ class TestDatabaseConnector:
         assert result[0]["name"] == "Test"
         assert test_query in mock_cursor.execute_calls
 
-    def test_query_table_returns_dataframe(self, mock_db_connection, mock_cursor):
-        """Test that query_table returns results as a DataFrame when as_dict=False."""
+    def test_query_returns_dataframe(self, mock_db_connection, mock_cursor):
+        """Test that query returns results as a DataFrame when as_dict=False."""
         # Arrange
         test_query = "SELECT * FROM catalog.schema.table"
 
         # Act
-        result = query_table(test_query, "warehouse-id", as_dict=False)
+        result = query(test_query, "warehouse-id", as_dict=False)
 
         # Assert
         assert isinstance(result, pd.DataFrame)
@@ -103,8 +103,8 @@ class TestDatabaseConnector:
         assert result.iloc[0]["name"] == "Test"
         assert test_query in mock_cursor.execute_calls
 
-    def test_query_table_handles_exceptions(self, mocker):
-        """Test that query_table properly handles and wraps exceptions."""
+    def test_query_handles_exceptions(self, mocker):
+        """Test that query properly handles and wraps exceptions."""
         # Arrange - create a connection that raises an exception when used
         mock_conn = mocker.MagicMock()
 
@@ -120,7 +120,7 @@ class TestDatabaseConnector:
 
         # Act & Assert
         with pytest.raises(Exception) as exc_info:
-            query_table("SELECT 1", "warehouse-id")
+            query("SELECT 1", "warehouse-id")
 
         assert "Query failed" in str(exc_info.value)
         assert "Database connection error" in str(exc_info.value)

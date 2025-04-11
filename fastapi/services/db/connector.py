@@ -37,11 +37,11 @@ def get_connection(warehouse_id: str):
     )
 
 
-def query_table(
+def query(
     sql_query: str, warehouse_id: str, as_dict: bool = True
 ) -> Union[List[Dict], pd.DataFrame]:
     """
-    Execute a SQL query against Databricks tables.
+    Execute a query against a Databricks SQL Warehouse.
 
     Args:
         sql_query: SQL query to execute

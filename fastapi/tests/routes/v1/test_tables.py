@@ -47,7 +47,7 @@ class TestTableFunction:
         # Setup
         test_data = mock_query_result()
 
-        # Create a test function to replace query_table
+        # Create a test function to replace query
         def mock_query(sql_query, warehouse_id, as_dict=True):
             assert "test_catalog.test_schema.test_table" in sql_query
             assert "LIMIT 10 OFFSET 0" in sql_query
@@ -55,7 +55,7 @@ class TestTableFunction:
             return test_data
 
         # Apply the monkeypatch
-        monkeypatch.setattr("routes.v1.tables.query_table", mock_query)
+        monkeypatch.setattr("routes.v1.tables.query", mock_query)
 
         # Call function directly
         result = await table(
@@ -100,7 +100,7 @@ class TestTableFunction:
             raise Exception("Database connection failed")
 
         # Apply the monkeypatch
-        monkeypatch.setattr("routes.v1.tables.query_table", mock_query_error)
+        monkeypatch.setattr("routes.v1.tables.query", mock_query_error)
 
         # Call function and expect exception
         with pytest.raises(DatabaseError) as exc_info:
@@ -130,7 +130,7 @@ class TestTableFunction:
             return filter_test_data
 
         # Apply the monkeypatch
-        monkeypatch.setattr("routes.v1.tables.query_table", mock_query_with_filter)
+        monkeypatch.setattr("routes.v1.tables.query", mock_query_with_filter)
 
         # Call function with filter
         result = await table(
