@@ -6,15 +6,15 @@ sidebar_position: 1
 
 This recipe demonstrates how to query Databricks [Unity Catalog tables](https://docs.databricks.com/aws/en/tables/) from a FastAPI application using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html).
 
-
-## Code snippet
-
 :::info
+In this example, we set up our API to be called using the `GET` HTTP method which is the standard choice for reading data in REST APIs as defined in RFC 7231. It's designed to be safe (non-modifying) and idempotent, making it ideal for data retrieval operations.   
 
-The below example is shortened for brevity and skips best practice implementation.  
-We encourage the reader to review and run the optimized FastAPI application code provided in the cookbook repository.
+GET requests are cacheable by default, improving performance, and their parameters are URL-encoded, making them bookmarkable and shareable.   
+
+For detailed specifications, refer to [RFC 7231 Section 4.3.1](https://datatracker.ietf.org/doc/html/rfc7231#section-4.3.1) which defines the GET method's semantics and requirements.
 
 :::
+## Code snippet
 
 ```python title="app.py"
 import os
@@ -67,7 +67,14 @@ def table(
 
 ```
 
-### Example Response
+:::warning
+
+The above example is shortened for brevity and skips best practice implementation.  
+We encourage the reader to review and run the optimized FastAPI application code provided in the cookbook repository.
+
+:::
+
+### Example Usage
 The query below retrieves data from the `system.billing.usage` [table](https://docs.databricks.com/aws/en/admin/system-tables/billing) via the above code snippet.  
 Kindly note that we need to encode the `sql_query` contents when making the API request.
 
@@ -158,6 +165,11 @@ Your [app service principal](https://docs.databricks.com/aws/en/dev-tools/databr
 See Unity [Catalog privileges and securable objects](https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges) for more information.
 
 ## Dependencies
+
+- [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
+- [Databricks SQL Connector for Python](https://pypi.org/project/databricks-sql-connector/) - `databricks-sql-connector`
+- [FastAPI](https://pypi.org/project/fastapi/) - `fastapi`
+- [uvicorn](https://pypi.org/project/uvicorn/) - `uvicorn`
 
 ```python title="requirements.txt"
 databricks-sdk
