@@ -4,9 +4,33 @@ sidebar_position: 1
 
 # Create a FastAPI App
 
-This recipe demonstrates how to create a FastAPI application on Databricks Apps.  
+This recipe demonstrates how to create a FastAPI application that can be deployed on Databricks Apps.  
 
 ## Code snippets
+
+Our FastAPI application will initially have the following structure:
+
+| File    | Purpose |
+| -------- | ------- |
+| `app.py`  | Main FastAPI application entrypoint    |
+| `app.yaml` | Databricks Apps deployment configuration     |
+| `requirements.txt`    | Main application dependencies    |
+| `routes/__init__.py`  | Module initialisation for API-router   |
+| `routes/v1/__init__.py`  | Sub-module initialisation for API-router (e.g. `/api/v1/*` routes)   |
+| `routes/v1/healthcheck.py`  | Isolated code handler for healthcheck |
+
+```bash
+tree -L 3
+.
+├── app.py
+├── app.yaml
+├── routes
+│   ├── __init__.py
+│   └── v1
+│       ├── __init__.py
+│       └── healthcheck.py
+├── requirements.txt
+```
 
 #### Main Application Entrypoint
 
@@ -23,20 +47,18 @@ app = FastAPI(
 
 # Router assignment
 app.include_router(api_router)
-
-
-@app.get("/")
-async def root():
-    return {
-        "app": "Databricks FastAPI Example",
-        "message": "Welcome to the Databricks FastAPI example app",
-        "docs": "/docs",
-    }
 ```
 
 #### API Routes
 
-Main router entrypoint for the application
+
+:::warning
+
+In order to use OAuth2 Bearer token authentication with Databricks Apps, your application code must provide valid routes with a prefix of `/api`.
+
+:::
+
+Let's define the main router entrypoint for the application.
 ```python title="routes/__init__.py"
 from fastapi import APIRouter
 
@@ -50,7 +72,8 @@ api_router = APIRouter()
 api_router.include_router(v1_router, prefix="/api/v1")
 ```
 
-Specific routers for the application - uses versioning and specific endpoints for isolation
+We then can define specific routers for the application, using versioning and specific endpoints for isolation per optimal practice.  
+Once done, we can create a dedicated file to handle healthchecks; it is exposed via `https://<app-url>/api/v1/healthcheck`
 ```python title="routes/v1/__init__.py"
 """V1 API routes."""
 
@@ -77,16 +100,53 @@ async def healthcheck() -> Dict[str, str]:
     return {"status": "OK", "timestamp": datetime.now(timezone.utc).isoformat()}
 ```
 
-## Resources
+## Running FastAPI Application
+
+### Local
+To run the application locally, use the following terminal command: `uvicorn app:app --reload`
+```bash
+INFO:     Will watch for changes in these directories: ['/Users/user.name/home/databricks-apps-cookbook/fastapi']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [56162] using StatReload
+INFO:     Started server process [56164]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+Once the app is running, you will be to access the following:
+- Index Page: http://127.0.0.1:8000
+- OpenAPI Docs: http://127.0.0.1:8000/docs
+- Healthcheck: http://127.0.0.1:8000/api/v1/healthcheck
+
+Accessing the app or making changes to `app.py` will update the tailing application log in the terminal:
+```bash
+INFO:     127.0.0.1:54508 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58696 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58696 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58893 - "GET /api/v1/healthcheck HTTP/1.1" 200 OK
+```
+```bash
+WARNING:  StatReload detected changes in 'app.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56164]
+INFO:     Started server process [63412]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+### Databricks App Runtime
+Assuming the code works locally, you can also deploy this on a Databricks workspace using Apps via the [configuration](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/configuration#configuring-your-databricks-apps-with-the-appyaml-file) below.
+
+```yaml title="app.yaml"
+command: ["uvicorn", "app:app"]
+```
+
+## Dependencies
 
 - [FastAPI](https://pypi.org/project/fastapi/) - `fastapi`
 - [uvicorn](https://pypi.org/project/uvicorn/) - `uvicorn`
-
-## Permissions
-
-As of April 2025, there are no permission restrictions on the creation of Databricks Apps for valid workspace users.
-
-## Dependencies
 
 ```python title="requirements.txt"
 fastapi
