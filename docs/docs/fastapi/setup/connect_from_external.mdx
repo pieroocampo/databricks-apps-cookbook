@@ -1,0 +1,49 @@
+---
+sidebar_position: 5
+---
+
+# Connect External App to Databricks App
+
+This recipe demonstrates how to connect your external application to a deployed Databricks App.
+
+:::info
+
+This connection methodology is regarded as Machine-to-Machine (M2M) and customers are generally advised to use a Databricks [Service Principal](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m) as per security best practices.
+
+:::
+
+
+## Code snippet
+
+The example below assumes `DATABRICKS_CLIENT_ID` and `DATABRICKS_CLIENT_SECRET` environment variables are defined from the associated service principal in order to generate a valid OAuth2 bearer token.
+
+```python
+from databricks.sdk import WorkspaceClient
+import requests
+
+# DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET implicitly present under env
+wc = WorkspaceClient(host="https://<workspace-host-containing-target-app>") 
+headers = wc.config.authenticate() # Contains Bearer Token
+
+response = requests.get(
+    "https://your-app-url/api/v1/healthcheck", headers=headers
+)
+print(response.json())
+```
+
+## Permissions
+
+For external app connectivity and authentication, the connecting [service principal](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/#how-does-databricks-apps-manage-authorization) needs the following permissions:
+
+- `CAN USE` on the target app
+
+## Dependencies
+
+- [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
+- [Requests](https://pypi.org/project/requests/) - `requests`
+
+
+```python title="requirements.txt"
+databricks-sdk
+requests
+``` 
