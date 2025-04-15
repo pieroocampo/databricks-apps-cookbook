@@ -59,3 +59,26 @@ class TableResponse(BaseModel):
             }
         }
     }
+
+
+class TableInsertRequest(BaseModel):
+    """Request model for inserting data into a table."""
+
+    catalog: str = Field(..., description="The catalog name")
+    schema_name: str = Field(..., description="The schema name", alias="schema")
+    table: str = Field(..., description="The table name")
+    data: List[Dict] = Field(..., description="The records to insert")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "catalog": "my_catalog",
+                "schema": "my_schema",
+                "table": "my_table",
+                "data": [
+                    {"id": 1, "name": "Example"},
+                    {"id": 2, "name": "Another Example"},
+                ],
+            }
+        }
+    }

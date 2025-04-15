@@ -9,8 +9,8 @@ from fastapi import APIRouter, Depends, Query
 
 from config.settings import Settings, get_settings
 from errors.exceptions import ConfigurationError, DatabaseError
-from models.tables import TableQueryParams, TableResponse
-from services.db.connector import query
+from models.tables import TableQueryParams, TableResponse, TableInsertRequest
+from services.db.connector import query, insert_data
 
 router = APIRouter(tags=["tables"])
 
@@ -97,5 +97,63 @@ async def table(
                 "catalog": params.catalog,
                 "schema": params.schema_name,
                 "table": params.table,
+            },
+        )
+
+
+@router.post("/table", response_model=TableResponse)
+async def insert_table_data(
+    request: TableInsertRequest,
+    settings: Settings = Depends(get_settings),
+) -> TableResponse:
+    """
+    Insert data into a Unity Catalog table.
+
+    Args:
+        request: The request containing the table path and data to insert
+        settings: Application settings
+
+    Returns:
+        TableResponse containing the number of records inserted
+
+    Raises:
+        ConfigurationError: If the SQL warehouse ID is not configured
+        DatabaseError: If the insert operation fails
+    """
+    # Get warehouse ID from settings
+    warehouse_id = settings.databricks_warehouse_id
+    if not warehouse_id:
+        raise ConfigurationError(
+            message="SQL warehouse ID not configured",
+            details={"setting": "databricks_warehouse_id"},
+        )
+
+    try:
+        # Build the table path
+        table_path = f"{request.catalog}.{request.schema_name}.{request.table}"
+
+        # Insert the data
+        records_inserted = insert_data(
+            table_path=table_path, data=request.data, warehouse_id=warehouse_id
+        )
+
+        # Ensure records_inserted is not negative
+        if records_inserted < 0:
+            records_inserted = len(request.data)
+
+        # Create the response
+        return TableResponse(
+            data=request.data,  # Return the inserted data
+            count=records_inserted,
+            total=records_inserted,  # For inserts, total is the same as count
+        )
+    except Exception as e:
+        # Wrap any exceptions in a DatabaseError
+        raise DatabaseError(
+            message=f"Failed to insert data: {str(e)}",
+            details={
+                "catalog": request.catalog,
+                "schema": request.schema_name,
+                "table": request.table,
             },
         )
