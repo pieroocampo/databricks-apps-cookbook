@@ -3,6 +3,6 @@
     "position": 5,
     "link": {
         "type": "generated-index",
-        "description": "Get cooking with our collection of FastAPI recipes for Databricks Apps."
+        "description": "Get cooking with our collection of FastAPI recipes for building API-based Databricks Apps."
     }
 }

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 3
 ---
 
 # Connect External App to Databricks App
@@ -15,14 +15,19 @@ This connection methodology is regarded as Machine-to-Machine (M2M) and customer
 
 ## Code snippet
 
-The example below assumes `DATABRICKS_CLIENT_ID` and `DATABRICKS_CLIENT_SECRET` environment variables are defined from the associated service principal in order to generate a valid OAuth2 bearer token.
+The example below requires a valid databricks workspace host, client id, and client secret.  
+
+Alternatively, they can be provided as environment variables `DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`, and `DATABRICKS_CLIENT_SECRET` respectively without needing to be used within `WorkspaceClient()`.
 
 ```python
 from databricks.sdk import WorkspaceClient
 import requests
 
-# DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET implicitly present under env
-wc = WorkspaceClient(host="https://<workspace-host-containing-target-app>") 
+wc = WorkspaceClient(
+    host="https://<DATABRICKS_HOST>",
+    client_id="<DATABRICKS_CLIENT_ID>",
+    client_secret="<DATABRICKS_CLIENT_SECRET>"
+) 
 headers = wc.config.authenticate() # Contains Bearer Token
 
 response = requests.get(
