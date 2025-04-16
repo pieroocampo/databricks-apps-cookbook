@@ -2,22 +2,21 @@
 sidebar_position: 3
 ---
 
-# Connect External App to Databricks App
+# Connect external app to Databricks App
 
-This recipe demonstrates how to connect your external application to a deployed Databricks App.
+This recipe demonstrates how to connect from your externally hosted application to an API deployed as a Databricks App.
 
 :::info
 
-This connection methodology is regarded as Machine-to-Machine (M2M) and customers are generally advised to use a Databricks [Service Principal](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m) as per security best practices.
+This connectivity option is called Machine-to-Machine (M2M) and requires you to set up a Databricks [service principal](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m) as per security best practices.
 
 :::
 
-
 ## Code snippet
 
-The example below requires a valid databricks workspace host, client id, and client secret.  
+The example below requires you to input a valid databricks workspace host URl as well as [service principal](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m) client id and client secret when instantiating the `WorkspaceClient`.
 
-Alternatively, they can be provided as environment variables `DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`, and `DATABRICKS_CLIENT_SECRET` respectively without needing to be used within `WorkspaceClient()`.
+Alternatively, you can set up these values as environment variables `DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`, and `DATABRICKS_CLIENT_SECRET`. The `WorkspaceClient` will auomatically pick up these environemnt variables.
 
 ```python
 from databricks.sdk import WorkspaceClient
@@ -27,7 +26,7 @@ wc = WorkspaceClient(
     host="https://<DATABRICKS_HOST>",
     client_id="<DATABRICKS_CLIENT_ID>",
     client_secret="<DATABRICKS_CLIENT_SECRET>"
-) 
+)
 headers = wc.config.authenticate() # Contains Bearer Token
 
 response = requests.get(
@@ -47,8 +46,7 @@ For external app connectivity and authentication, the connecting [service princi
 - [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
 - [Requests](https://pypi.org/project/requests/) - `requests`
 
-
 ```python title="requirements.txt"
 databricks-sdk
 requests
-``` 
+```

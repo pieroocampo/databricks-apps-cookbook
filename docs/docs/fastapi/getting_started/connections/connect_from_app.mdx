@@ -4,25 +4,24 @@ sidebar_position: 4
 
 # Connect Databricks App to Databricks App
 
-This recipe demonstrates how to connect one Databricks App to another Databricks App.
+This recipe demonstrates how to connect from a Databricks App to an API hosted as another Databricks App.
 
 :::info
 
-This is another type of Machine-to-Machine (M2M) connectivity; Databricks Apps provisions a dedicated Service Principal per application slot which should be used for the purposes of security isolation, authentication, and authorization.
+This is another type of Machine-to-Machine (M2M) connectivity. As each Databricks App is assigned a dedicated [service principal](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m) upon creation, you should use this service principal's credentials when interacting with any Databricks service, including other Databricks Apps.
 
 :::
 
-
 ## Code snippet
 
-Under the Databricks Apps runtime, environment variables for `DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`, and `DATABRICKS_CLIENT_SECRET` are present and associated with the App service principal.
+In the Databricks Apps environment, environment variables for `DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`, and `DATABRICKS_CLIENT_SECRET` are are automatically set based on the app's workspace and assigned service principal. Therefore, you do not need to explicitly specify these values in the following code:
 
 ```python
 from databricks.sdk import WorkspaceClient
 import requests
 
-# DATABRICKS_HOST, DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET implicitly present under env
-wc = WorkspaceClient() 
+# DATABRICKS_HOST, DATABRICKS_CLIENT_ID, DATABRICKS_CLIENT_SECRET available in environemnt
+wc = WorkspaceClient()
 headers = wc.config.authenticate() # Contains Bearer Token
 
 response = requests.get(
@@ -42,8 +41,7 @@ For Databricks App connectivity and authentication, the connecting App [service 
 - [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
 - [Requests](https://pypi.org/project/requests/) - `requests`
 
-
 ```python title="requirements.txt"
 databricks-sdk
 requests
-``` 
+```

@@ -7,14 +7,15 @@ sidebar_position: 2
 This recipe demonstrates how to insert data into a Databricks [Unity Catalog table](https://docs.databricks.com/aws/en/tables/) from a FastAPI application using the [Databricks SQL Connector](https://docs.databricks.com/en/dev-tools/python-sql-connector.html).
 
 :::info
-In this example, we set up our API to be called using the `POST` HTTP method which is the standard choice for creating new resources in REST APIs as defined in RFC 7231. 
-Unlike `GET`, POST is not idempotent - making the same request multiple times may create multiple resources.  
+In this example, we set up our API to be called using the `POST` HTTP method which is the standard choice for creating new resources in REST APIs as defined in RFC 7231.
+Unlike `GET`, POST is not idempotent - making the same request multiple times may create multiple resources.
 
 POST requests are typically used when submitting data to be processed or when creating new resources, with the request body containing the data to be added.
 
 For detailed specifications, refer to [RFC 7231 Section 4.3.3](https://datatracker.ietf.org/doc/html/rfc7231#section-4.3.3) which defines the POST method's semantics and requirements.
 
 :::
+
 ## Code snippet
 
 ```python title="app.py"
@@ -102,14 +103,16 @@ async def insert_table_data(request: Request):
 
 :::warning
 
-The above example is shortened for brevity and skips best practice implementation.  
-We encourage the reader to review and run the optimized FastAPI application code provided in the cookbook repository.
+The above example is shortened for brevity and not suitable for production use.
+You can find a more advanced sample in the databricks-apps-cookbook GitHub repository.
 
 :::
 
 ### Example Usage
+
 In this example, we will create the following Unity Catalog table called `my_catalog.my_schema.trips` via Databricks SQL Editor.  
-It is assumed that the user/service principal identity has the appropriate Unity Catalog grants to make changes as required.  
+It is assumed that the user/service principal identity has the appropriate Unity Catalog grants to make changes as required.
+
 ```sql
 CREATE OR REPLACE TABLE my_catalog.my_schema.trips (
   trip_id INT,
@@ -178,7 +181,9 @@ response = requests.post(
 )
 print(response.json())
 ```
+
 If the request was successful, you will get the following output in your terminal:
+
 ```shell
 {'data': [{'trip_id': 1, 'passenger_count': 1, 'trip_distance': 10.0, 'pickup_datetime': '2024-01-01 12:00:00', 'dropoff_datetime': '2024-01-01 12:10:00', 'payment_type': 'credit_card', 'fare_amount': 15.0, 'tip_amount': 2.0}, {'trip_id': 2, 'passenger_count': 1, 'trip_distance': 86.0, 'pickup_datetime': '2024-01-01 14:00:00', 'dropoff_datetime': '2024-01-01 15:13:00', 'payment_type': 'cash', 'fare_amount': 15.0, 'tip_amount': 3.0}, {'trip_id': 3, 'passenger_count': 1, 'trip_distance': 6.0, 'pickup_datetime': '2024-01-01 15:31:00', 'dropoff_datetime': '2024-01-01 15:45:00', 'payment_type': 'cash', 'fare_amount': 15.0, 'tip_amount': 3.0}], 'count': 3, 'total': 3}
 ```
@@ -209,4 +214,4 @@ databricks-sdk
 databricks-sql-connector
 fastapi
 uvicorn
-``` 
+```

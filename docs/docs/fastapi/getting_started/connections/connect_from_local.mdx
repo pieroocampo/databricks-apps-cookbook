@@ -2,32 +2,33 @@
 sidebar_position: 2
 ---
 
-# Connect Local Machine to Databricks App
+# Connect local machine to Databricks App
 
-This recipe demonstrates how to connect from your local machine to a deployed Databricks App.
+This recipe demonstrates how to connect from your local machine to an API deployed as a Databricks App.
 
 :::warning
 
-The FastAPI application running on http://127.0.0.1:8000 does not require a [valid bearer token](https://docs.databricks.com/aws/en/dev-tools/auth/#databricks-authorization-methods) but only when deployed on Databricks Apps.
-This token is required for accessing Databricks Apps via the secured HTTPS URL with `/api` endpoints.  
+While the FastAPI application running locally on http://127.0.0.1:8000 does not require a [valid bearer token](https://docs.databricks.com/aws/en/dev-tools/auth/#databricks-authorization-methods), this token is required for accessing Databricks Apps via the secured HTTPS URL with `/api` endpoints.
 
 :::
 
 ## Generate OAuth2 Bearer token
+
 The easiest method to generate a valid token is to use the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) which allows you to authenticate with the workspace where the Databricks App is hosted.
 
+You can log in to a workspace via the following CLI command:
 
-Users can log into a workspace via the CLI command:
 ```bash
 databricks auth login --host https://<databricks-workspace-url> --profile my-env
 ```
 
 Upon logging in successfully via the browser, you will see that your profile has been saved. This is helpful if you need to test your app across multiple environments.
+
 ```bash
 Profile my-env was successfully saved
 ```
 
-A bearer token can then be generated with a limited TTL; temporarily store the `access_token` details for use later on.
+A bearer token can then be generated with a limited time-to-live. Make sure to temporarily store the `access_token` details for use later on.
 
 ```bash
 databricks auth token --profile my-env
@@ -61,7 +62,7 @@ response = requests.get(
 print(response.json())
 ```
 
-If you would like to avoid storing the token in your code, you can leverage the profile you have created using the Databricks CLI through the Databricks Python SDK directly.
+If you would like to avoid storing the token in your code, you can leverage the profile you have created using the Databricks CLI through the [Databricks SDK for Python](https://databricks-sdk-py.readthedocs.io/en/latest/) directly.
 
 ```python
 from databricks.sdk.core import Config
@@ -88,8 +89,7 @@ For local connectivity and authentication, the connecting user(s)/group(s) needs
 - [Databricks SDK for Python](https://pypi.org/project/databricks-sdk/) - `databricks-sdk`
 - [Requests](https://pypi.org/project/requests/) - `requests`
 
-
 ```python title="requirements.txt"
 databricks-sdk
 requests
-``` 
+```
