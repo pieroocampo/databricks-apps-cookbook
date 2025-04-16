@@ -38,6 +38,11 @@ function HomepageHeader() {
               Dash
             </button>
           </Link>
+          <Link to="/docs/category/fastapi" className="landing-button-horizontal">
+            <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg">
+              FastAPI
+            </button>
+          </Link>
           <Link to="/docs/intro" className="landing-button-horizontal">
             <button className="w-full border-2 border-gray-800 bg-transparent px-8 py-2.5 align-middle font-semibold text-gray-800 hover:cursor-pointer hover:underline xs:text-lg dark:border-white dark:text-white">
               Learn more
@@ -59,6 +64,14 @@ function HomepageHeader() {
           >
             <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg">
               Dash
+            </button>
+          </Link>
+          <Link
+            to="/docs/category/fastapi"
+            className="landing-button-vertical w-full"
+          >
+            <button className="w-full border-2 border-lava-600 bg-lava-600 px-8 py-2.5 align-middle font-semibold text-white hover:cursor-pointer hover:border-lava-700 hover:bg-lava-700 hover:underline xs:text-lg">
+              FastAPI
             </button>
           </Link>
           <Link to="/docs/intro" className="landing-button-vertical w-full">

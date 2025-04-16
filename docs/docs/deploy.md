@@ -68,6 +68,12 @@ Check the Requirements tab of each recipe to understand what [service principal 
    python app.py
    ```
 
+   FastAPI:
+
+   ```bash
+   uvicorn app:app
+   ```
+
 :::info
 
 Make sure you have a working network connection to your Databricks workspace. Some samples may only work when running on Databricks Apps and not locally, e.g., retrieving information from HTTP headers to identify users.
