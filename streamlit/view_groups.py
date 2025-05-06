@@ -58,6 +58,12 @@ groups = [
                 "page": "views/ml_vector_search.py",
                 "icon": ":material/search:",
             },
+            {
+                "label": "Invoke multi-modal LLM",
+                "help": "Send text and images for visual-language LLM tasks.",
+                "page": "views/ml_serving_invoke_mllm.py",
+                "icon": ":material/sensors:",
+            },
         ],
     },
     {
