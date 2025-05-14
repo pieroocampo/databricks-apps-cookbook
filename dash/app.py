@@ -38,7 +38,8 @@ def create_sidebar():
         ],
         'AI / ML': [
             'Invoke a model',
-            'Run vector search'
+            'Run vector search',
+            'Invoke a multi-modal LLM'
         ],
         'Business Intelligence': [
             'AI/BI Dashboard',
@@ -64,6 +65,7 @@ def create_sidebar():
         'Upload a file': 'material-symbols:upload',
         'Download a file': 'material-symbols:download',
         'Invoke a model': 'material-symbols:model-training',
+        'Invoke a multi-modal LLM': 'material-symbols:sensors',
         'Run vector search': 'material-symbols:search',
         'AI/BI Dashboard': 'material-symbols:dashboard',
         'Genie': 'material-symbols:chat',
