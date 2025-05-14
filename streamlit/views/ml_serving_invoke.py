@@ -34,35 +34,23 @@ with tab_a:
             step=0.1,
             help="Controls the randomness of the LLM output. Only applicable for chat/completions queries.",
         )
-
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
-
-        for message in st.session_state.messages:
-            with st.chat_message(message.role.value):
-                st.write(message.content)
-
-        if prompt := st.chat_input("Ask something..."):
-            st.chat_message("user").markdown(prompt)
-            st.session_state.messages.append(ChatMessage(
-                role=ChatMessageRole.USER,
-                content=prompt,
-        ),)
-
-            with st.chat_message("assistant"):
-                response = w.serving_endpoints.query(
-                    name=selected_model,
-                    messages=st.session_state.messages,
-                    temperature=temperature,
-                )
-                assistant_message = response.choices[0].message.content
-                st.markdown(assistant_message)
-
-                st.session_state.messages.append(ChatMessage(
-                    role=ChatMessageRole.ASSISTANT,
-                    content=assistant_message,
-                ),)
-
+        prompt = st.text_area("Enter your prompt:", placeholder="Ask something...")
+        if st.button("Invoke LLM"):
+            response = w.serving_endpoints.query(
+                name=selected_model,
+                messages=[
+                    ChatMessage(
+                        role=ChatMessageRole.SYSTEM,
+                        content="You are a helpful assistant.",
+                    ),
+                    ChatMessage(
+                        role=ChatMessageRole.USER,
+                        content=prompt,
+                    ),
+                ],
+                temperature=temperature,
+            )
+            st.json(response.as_dict())
 
     elif model_type == "Traditional ML":
         st.info(
