@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 from databricks.sdk import WorkspaceClient
+import tempfile
 
 w = WorkspaceClient()
 
@@ -23,17 +24,20 @@ with tab1:
         if download_file_path:
             try:
                 resp = w.files.download(download_file_path)
-                file_data = resp.contents.read()
-
                 file_name = os.path.basename(download_file_path)
-
+                tmp_file = tempfile.NamedTemporaryFile(delete=False)
+                with resp.contents as stream:
+                    for chunk in stream:
+                        tmp_file.write(chunk)
+                tmp_file.close()
                 st.success(f"File '{file_name}' downloaded successfully", icon="✅")
-                st.download_button(
-                    label="Download file",
-                    data=file_data,
-                    file_name=file_name,
-                    mime="application/octet-stream",
-                )
+                with open(tmp_file.name, "rb") as f:
+                    st.download_button(
+                        label="Download file",
+                        data=f,
+                        file_name=file_name,
+                        mime="application/octet-stream",
+                    )
             except Exception as e:
                 st.error(f"Error downloading file: {str(e)}")
         else:
